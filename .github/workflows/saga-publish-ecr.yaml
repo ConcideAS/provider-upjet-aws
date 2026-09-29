@@ -61,6 +61,11 @@ env:
   # Clusters are amd64 (verified on aws-eu-central-1-dev). Building both
   # architectures roughly doubles the time and the disk for no consumer.
   BUILD_PLATFORMS: linux_amd64
+  # BATCH_PLATFORMS is what `crossplane xpkg batch --platform` consumes, and it
+  # defaults to linux_amd64,linux_arm64 independently of BUILD_PLATFORMS. Left
+  # unset, publish looks for a provider-aws-arm64 image the build never produced
+  # and fails with "No such image".
+  BATCH_PLATFORMS: linux_amd64
 
 jobs:
   build-and-push:
@@ -162,6 +167,7 @@ jobs:
           make SUBPACKAGES="$SUBPACKAGE" \
             VERSION="${{ steps.ver.outputs.version }}" \
             BUILD_PLATFORMS="$BUILD_PLATFORMS" \
+            BATCH_PLATFORMS="$BATCH_PLATFORMS" \
             XPKG_REG_ORGS="$XPKG_REG_ORGS" \
             XPKG_REG_ORGS_NO_PROMOTE="$XPKG_REG_ORGS_NO_PROMOTE" \
             CONFIG_DEPENDENCY_REG_ORG="$CONFIG_DEPENDENCY_REG_ORG" \
@@ -179,6 +185,7 @@ jobs:
           make SUBPACKAGES="$SUBPACKAGE" \
             VERSION="${{ steps.ver.outputs.version }}" \
             BUILD_PLATFORMS="$BUILD_PLATFORMS" \
+            BATCH_PLATFORMS="$BATCH_PLATFORMS" \
             XPKG_REG_ORGS="$XPKG_REG_ORGS" \
             XPKG_REG_ORGS_NO_PROMOTE="$XPKG_REG_ORGS_NO_PROMOTE" \
             CONFIG_DEPENDENCY_REG_ORG="$CONFIG_DEPENDENCY_REG_ORG" \
