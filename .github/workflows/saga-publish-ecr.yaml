@@ -23,6 +23,9 @@ on:
   push:
     branches:
       - main
+      # The fork's main tracks upstream; our work sits on this branch so the
+      # fork stays rebaseable onto a newer upstream release.
+      - feat/cloudfront-saas-manager
     paths:
       # Only the things that can change the package. Docs and CI edits do not
       # warrant a 30-minute build.
