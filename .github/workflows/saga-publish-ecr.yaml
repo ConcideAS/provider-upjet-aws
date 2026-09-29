@@ -167,31 +167,6 @@ jobs:
             CONFIG_DEPENDENCY_REG_ORG="$CONFIG_DEPENDENCY_REG_ORG" \
             BRANCH_NAME=main build.all 2>&1 | tail -40
 
-      - name: Verify the package was produced
-        id: pkg
-        run: |
-          # `make build` alone yields only a controller image; the package comes
-          # from the batch step. Fail loudly here rather than push nothing.
-          F=$(find _output/xpkg -name '*.xpkg' | head -1)
-          [ -n "$F" ] || { echo "::error::no .xpkg produced"; exit 1; }
-          ls -lh "$F"
-          echo "file=$F" >> "$GITHUB_OUTPUT"
-
-      - name: Verify the declared family dependency
-        run: |
-          # Guards the defect that shipped in v2.8.1-cloudfront-saas.1: the
-          # package declared a dependency on xpkg.upbound.io/upbound, which is
-          # not the family these clusters run.
-          D=$(mktemp -d) && tar -xf "${{ steps.pkg.outputs.file }}" -C "$D"
-          for l in "$D"/*.tar.gz; do
-            if tar -tzf "$l" 2>/dev/null | grep -qx package.yaml; then
-              tar -xzOf "$l" package.yaml | grep -A2 '^  dependsOn:' || true
-              tar -xzOf "$l" package.yaml | grep -q 'xpkg.crossplane.io/crossplane-contrib/provider-family-aws' \
-                || { echo "::error::package depends on the wrong provider family"; exit 1; }
-              break
-            fi
-          done
-
       - name: Publish to ECR
         # `publish` runs the same batch step without BUILD_ONLY, so xpkg batch
         # pushes the package itself. Pushing a BUILD_ONLY artifact by hand with
@@ -208,6 +183,26 @@ jobs:
             XPKG_REG_ORGS_NO_PROMOTE="$XPKG_REG_ORGS_NO_PROMOTE" \
             CONFIG_DEPENDENCY_REG_ORG="$CONFIG_DEPENDENCY_REG_ORG" \
             BRANCH_NAME=main publish 2>&1 | tail -30
+
+      - name: Verify what was published
+        # With build.all + publish the package is created by the batch step at
+        # publish time, so there is no local .xpkg to inspect beforehand - the
+        # registry is the source of truth. Fail loudly if the tag is absent.
+        run: |
+          set -o pipefail
+          aws ecr describe-images --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="${{ steps.ver.outputs.version }}" \
+            --region "$AWS_REGION" \
+            --query 'imageDetails[0].{tag:imageTags[0],bytes:imageSizeInBytes,pushed:imagePushedAt}' \
+            --output table
+          # dependsOn must name the family these clusters run, not Upbound's.
+          docker pull -q "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}"
+          cid=$(docker create "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}")
+          docker export "$cid" | tar -xO package.yaml 2>/dev/null | grep -A2 '^  dependsOn:' || true
+          docker export "$cid" | tar -xO package.yaml 2>/dev/null \
+            | grep -q 'xpkg.crossplane.io/crossplane-contrib/provider-family-aws' \
+            || { echo "::error::package depends on the wrong provider family"; exit 1; }
+          docker rm -f "$cid" >/dev/null
 
       - name: Summary
         run: |
