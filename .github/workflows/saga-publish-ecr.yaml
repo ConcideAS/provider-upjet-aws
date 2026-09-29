@@ -17,9 +17,9 @@ on:
         description: 'Package tag, e.g. v2.8.1-cloudfront-saas.3 (must be semver)'
         required: true
       subpackage:
-        description: 'Service subpackage to build'
+        description: 'Subpackages to build, space separated. `config` is the family provider (publishes as provider-family-aws) and a service package is not meant to run without its matching build of it - see the repo README.'
         required: false
-        default: cloudfront
+        default: config cloudfront
   push:
     branches:
       - main
@@ -160,7 +160,7 @@ jobs:
         # reproduced with an unmodified v2.8.1 tree, so it is the build path and
         # not our resource config.
         env:
-          SUBPACKAGE: ${{ github.event.inputs.subpackage || 'cloudfront' }}
+          SUBPACKAGE: ${{ github.event.inputs.subpackage || 'config cloudfront' }}
         run: |
           set -o pipefail
           export PATH="$(go env GOPATH)/bin:$PATH"
@@ -178,7 +178,7 @@ jobs:
         # pushes the package itself. Pushing a BUILD_ONLY artifact by hand with
         # `crossplane xpkg push` is what produced the inert packages.
         env:
-          SUBPACKAGE: ${{ github.event.inputs.subpackage || 'cloudfront' }}
+          SUBPACKAGE: ${{ github.event.inputs.subpackage || 'config cloudfront' }}
         run: |
           set -o pipefail
           export PATH="$(go env GOPATH)/bin:$PATH"
@@ -202,6 +202,9 @@ jobs:
             --region "$AWS_REGION" \
             --query 'imageDetails[0].{tag:imageTags[0],bytes:imageSizeInBytes,pushed:imagePushedAt}' \
             --output table
+          aws ecr describe-images --repository-name saga/provider-family-aws \
+            --image-ids imageTag="${{ steps.ver.outputs.version }}" \
+            --region "$AWS_REGION" --query 'imageDetails[0].imageTags' --output text
           # dependsOn must name the family these clusters run, not Upbound's.
           docker pull -q "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}"
           cid=$(docker create "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}")
