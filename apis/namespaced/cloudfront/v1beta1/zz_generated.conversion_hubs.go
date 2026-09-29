@@ -10,7 +10,13 @@ package v1beta1
 func (tr *CachePolicy) Hub() {}
 
 // Hub marks this type as a conversion hub.
+func (tr *ConnectionGroup) Hub() {}
+
+// Hub marks this type as a conversion hub.
 func (tr *Distribution) Hub() {}
+
+// Hub marks this type as a conversion hub.
+func (tr *DistributionTenant) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *FieldLevelEncryptionConfig) Hub() {}
@@ -26,6 +32,9 @@ func (tr *KeyGroup) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *MonitoringSubscription) Hub() {}
+
+// Hub marks this type as a conversion hub.
+func (tr *MultitenantDistribution) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *OriginAccessControl) Hub() {}

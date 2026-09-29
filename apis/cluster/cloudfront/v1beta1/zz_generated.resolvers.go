@@ -218,6 +218,154 @@ func (mg *Distribution) ResolveReferences( // ResolveReferences of this Distribu
 	return nil
 }
 
+// ResolveReferences of this DistributionTenant.
+func (mg *DistributionTenant) ResolveReferences(ctx context.Context, c client.Reader) error {
+	var m xpresource.Managed
+	var l xpresource.ManagedList
+	r := reference.NewAPIResolver(c, mg)
+
+	var rsp reference.ResolutionResponse
+	var err error
+
+	if mg.Spec.ForProvider.Customizations != nil {
+		if mg.Spec.ForProvider.Customizations.Certificate != nil {
+			{
+				m, l, err = apisresolver.GetManagedResource("acm.aws.upbound.io", "v1beta2", "Certificate", "CertificateList")
+				if err != nil {
+					return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+				}
+				rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+					CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.Customizations.Certificate.Arn),
+					Extract:      resource.ExtractParamPath("arn", true),
+					Namespace:    mg.GetNamespace(),
+					Reference:    mg.Spec.ForProvider.Customizations.Certificate.ArnRef,
+					Selector:     mg.Spec.ForProvider.Customizations.Certificate.ArnSelector,
+					To:           reference.To{List: l, Managed: m},
+				})
+			}
+			if err != nil {
+				return errors.Wrap(err, "mg.Spec.ForProvider.Customizations.Certificate.Arn")
+			}
+			mg.Spec.ForProvider.Customizations.Certificate.Arn = reference.ToPtrValue(rsp.ResolvedValue)
+			mg.Spec.ForProvider.Customizations.Certificate.ArnRef = rsp.ResolvedReference
+
+		}
+	}
+	if mg.Spec.ForProvider.Customizations != nil {
+		if mg.Spec.ForProvider.Customizations.WebACL != nil {
+			{
+				m, l, err = apisresolver.GetManagedResource("wafv2.aws.upbound.io", "v1beta1", "WebACL", "WebACLList")
+				if err != nil {
+					return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+				}
+				rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+					CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.Customizations.WebACL.Arn),
+					Extract:      resource.ExtractParamPath("arn", true),
+					Namespace:    mg.GetNamespace(),
+					Reference:    mg.Spec.ForProvider.Customizations.WebACL.ArnRef,
+					Selector:     mg.Spec.ForProvider.Customizations.WebACL.ArnSelector,
+					To:           reference.To{List: l, Managed: m},
+				})
+			}
+			if err != nil {
+				return errors.Wrap(err, "mg.Spec.ForProvider.Customizations.WebACL.Arn")
+			}
+			mg.Spec.ForProvider.Customizations.WebACL.Arn = reference.ToPtrValue(rsp.ResolvedValue)
+			mg.Spec.ForProvider.Customizations.WebACL.ArnRef = rsp.ResolvedReference
+
+		}
+	}
+	{
+		m, l, err = apisresolver.GetManagedResource("cloudfront.aws.upbound.io", "v1beta1", "MultitenantDistribution", "MultitenantDistributionList")
+		if err != nil {
+			return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+		}
+		rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+			CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.DistributionID),
+			Extract:      resource.ExtractResourceID(),
+			Namespace:    mg.GetNamespace(),
+			Reference:    mg.Spec.ForProvider.DistributionIDRef,
+			Selector:     mg.Spec.ForProvider.DistributionIDSelector,
+			To:           reference.To{List: l, Managed: m},
+		})
+	}
+	if err != nil {
+		return errors.Wrap(err, "mg.Spec.ForProvider.DistributionID")
+	}
+	mg.Spec.ForProvider.DistributionID = reference.ToPtrValue(rsp.ResolvedValue)
+	mg.Spec.ForProvider.DistributionIDRef = rsp.ResolvedReference
+
+	if mg.Spec.InitProvider.Customizations != nil {
+		if mg.Spec.InitProvider.Customizations.Certificate != nil {
+			{
+				m, l, err = apisresolver.GetManagedResource("acm.aws.upbound.io", "v1beta2", "Certificate", "CertificateList")
+				if err != nil {
+					return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+				}
+				rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+					CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.Customizations.Certificate.Arn),
+					Extract:      resource.ExtractParamPath("arn", true),
+					Namespace:    mg.GetNamespace(),
+					Reference:    mg.Spec.InitProvider.Customizations.Certificate.ArnRef,
+					Selector:     mg.Spec.InitProvider.Customizations.Certificate.ArnSelector,
+					To:           reference.To{List: l, Managed: m},
+				})
+			}
+			if err != nil {
+				return errors.Wrap(err, "mg.Spec.InitProvider.Customizations.Certificate.Arn")
+			}
+			mg.Spec.InitProvider.Customizations.Certificate.Arn = reference.ToPtrValue(rsp.ResolvedValue)
+			mg.Spec.InitProvider.Customizations.Certificate.ArnRef = rsp.ResolvedReference
+
+		}
+	}
+	if mg.Spec.InitProvider.Customizations != nil {
+		if mg.Spec.InitProvider.Customizations.WebACL != nil {
+			{
+				m, l, err = apisresolver.GetManagedResource("wafv2.aws.upbound.io", "v1beta1", "WebACL", "WebACLList")
+				if err != nil {
+					return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+				}
+				rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+					CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.Customizations.WebACL.Arn),
+					Extract:      resource.ExtractParamPath("arn", true),
+					Namespace:    mg.GetNamespace(),
+					Reference:    mg.Spec.InitProvider.Customizations.WebACL.ArnRef,
+					Selector:     mg.Spec.InitProvider.Customizations.WebACL.ArnSelector,
+					To:           reference.To{List: l, Managed: m},
+				})
+			}
+			if err != nil {
+				return errors.Wrap(err, "mg.Spec.InitProvider.Customizations.WebACL.Arn")
+			}
+			mg.Spec.InitProvider.Customizations.WebACL.Arn = reference.ToPtrValue(rsp.ResolvedValue)
+			mg.Spec.InitProvider.Customizations.WebACL.ArnRef = rsp.ResolvedReference
+
+		}
+	}
+	{
+		m, l, err = apisresolver.GetManagedResource("cloudfront.aws.upbound.io", "v1beta1", "MultitenantDistribution", "MultitenantDistributionList")
+		if err != nil {
+			return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+		}
+		rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+			CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.DistributionID),
+			Extract:      resource.ExtractResourceID(),
+			Namespace:    mg.GetNamespace(),
+			Reference:    mg.Spec.InitProvider.DistributionIDRef,
+			Selector:     mg.Spec.InitProvider.DistributionIDSelector,
+			To:           reference.To{List: l, Managed: m},
+		})
+	}
+	if err != nil {
+		return errors.Wrap(err, "mg.Spec.InitProvider.DistributionID")
+	}
+	mg.Spec.InitProvider.DistributionID = reference.ToPtrValue(rsp.ResolvedValue)
+	mg.Spec.InitProvider.DistributionIDRef = rsp.ResolvedReference
+
+	return nil
+}
+
 // ResolveReferences of this FieldLevelEncryptionConfig.
 func (mg *FieldLevelEncryptionConfig) ResolveReferences(ctx context.Context, c client.Reader) error {
 	var m xpresource.Managed
@@ -444,6 +592,107 @@ func (mg *MonitoringSubscription) ResolveReferences(ctx context.Context, c clien
 	}
 	mg.Spec.InitProvider.DistributionID = reference.ToPtrValue(rsp.ResolvedValue)
 	mg.Spec.InitProvider.DistributionIDRef = rsp.ResolvedReference
+
+	return nil
+}
+
+// ResolveReferences of this MultitenantDistribution.
+func (mg *MultitenantDistribution) ResolveReferences(ctx context.Context, c client.Reader) error {
+	var m xpresource.Managed
+	var l xpresource.ManagedList
+	r := reference.NewAPIResolver(c, mg)
+
+	var rsp reference.ResolutionResponse
+	var err error
+
+	if mg.Spec.ForProvider.DefaultCacheBehavior != nil {
+		{
+			m, l, err = apisresolver.GetManagedResource("cloudfront.aws.upbound.io", "v1beta2", "CachePolicy", "CachePolicyList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.DefaultCacheBehavior.CachePolicyID),
+				Extract:      resource.ExtractResourceID(),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.ForProvider.DefaultCacheBehavior.CachePolicyIDRef,
+				Selector:     mg.Spec.ForProvider.DefaultCacheBehavior.CachePolicyIDSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.ForProvider.DefaultCacheBehavior.CachePolicyID")
+		}
+		mg.Spec.ForProvider.DefaultCacheBehavior.CachePolicyID = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.ForProvider.DefaultCacheBehavior.CachePolicyIDRef = rsp.ResolvedReference
+
+	}
+	if mg.Spec.ForProvider.ViewerCertificate != nil {
+		{
+			m, l, err = apisresolver.GetManagedResource("acm.aws.upbound.io", "v1beta2", "Certificate", "CertificateList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.ViewerCertificate.AcmCertificateArn),
+				Extract:      resource.ExtractParamPath("arn", true),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.ForProvider.ViewerCertificate.AcmCertificateArnRef,
+				Selector:     mg.Spec.ForProvider.ViewerCertificate.AcmCertificateArnSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.ForProvider.ViewerCertificate.AcmCertificateArn")
+		}
+		mg.Spec.ForProvider.ViewerCertificate.AcmCertificateArn = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.ForProvider.ViewerCertificate.AcmCertificateArnRef = rsp.ResolvedReference
+
+	}
+	if mg.Spec.InitProvider.DefaultCacheBehavior != nil {
+		{
+			m, l, err = apisresolver.GetManagedResource("cloudfront.aws.upbound.io", "v1beta2", "CachePolicy", "CachePolicyList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.DefaultCacheBehavior.CachePolicyID),
+				Extract:      resource.ExtractResourceID(),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.InitProvider.DefaultCacheBehavior.CachePolicyIDRef,
+				Selector:     mg.Spec.InitProvider.DefaultCacheBehavior.CachePolicyIDSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.InitProvider.DefaultCacheBehavior.CachePolicyID")
+		}
+		mg.Spec.InitProvider.DefaultCacheBehavior.CachePolicyID = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.InitProvider.DefaultCacheBehavior.CachePolicyIDRef = rsp.ResolvedReference
+
+	}
+	if mg.Spec.InitProvider.ViewerCertificate != nil {
+		{
+			m, l, err = apisresolver.GetManagedResource("acm.aws.upbound.io", "v1beta2", "Certificate", "CertificateList")
+			if err != nil {
+				return errors.Wrap(err, "failed to get the reference target managed resource and its list for reference resolution")
+			}
+			rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+				CurrentValue: reference.FromPtrValue(mg.Spec.InitProvider.ViewerCertificate.AcmCertificateArn),
+				Extract:      resource.ExtractParamPath("arn", true),
+				Namespace:    mg.GetNamespace(),
+				Reference:    mg.Spec.InitProvider.ViewerCertificate.AcmCertificateArnRef,
+				Selector:     mg.Spec.InitProvider.ViewerCertificate.AcmCertificateArnSelector,
+				To:           reference.To{List: l, Managed: m},
+			})
+		}
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.InitProvider.ViewerCertificate.AcmCertificateArn")
+		}
+		mg.Spec.InitProvider.ViewerCertificate.AcmCertificateArn = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.InitProvider.ViewerCertificate.AcmCertificateArnRef = rsp.ResolvedReference
+
+	}
 
 	return nil
 }

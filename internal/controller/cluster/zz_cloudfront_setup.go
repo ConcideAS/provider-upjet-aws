@@ -10,12 +10,15 @@ import (
 	"github.com/crossplane/upjet/v2/pkg/controller"
 
 	cachepolicy "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/cachepolicy"
+	connectiongroup "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/connectiongroup"
 	distribution "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/distribution"
+	distributiontenant "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/distributiontenant"
 	fieldlevelencryptionconfig "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/fieldlevelencryptionconfig"
 	fieldlevelencryptionprofile "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/fieldlevelencryptionprofile"
 	function "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/function"
 	keygroup "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/keygroup"
 	monitoringsubscription "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/monitoringsubscription"
+	multitenantdistribution "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/multitenantdistribution"
 	originaccesscontrol "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/originaccesscontrol"
 	originaccessidentity "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/originaccessidentity"
 	originrequestpolicy "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/originrequestpolicy"
@@ -30,12 +33,15 @@ import (
 func Setup_cloudfront(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		cachepolicy.Setup,
+		connectiongroup.Setup,
 		distribution.Setup,
+		distributiontenant.Setup,
 		fieldlevelencryptionconfig.Setup,
 		fieldlevelencryptionprofile.Setup,
 		function.Setup,
 		keygroup.Setup,
 		monitoringsubscription.Setup,
+		multitenantdistribution.Setup,
 		originaccesscontrol.Setup,
 		originaccessidentity.Setup,
 		originrequestpolicy.Setup,
@@ -56,12 +62,15 @@ func Setup_cloudfront(mgr ctrl.Manager, o controller.Options) error {
 func SetupGated_cloudfront(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		cachepolicy.SetupGated,
+		connectiongroup.SetupGated,
 		distribution.SetupGated,
+		distributiontenant.SetupGated,
 		fieldlevelencryptionconfig.SetupGated,
 		fieldlevelencryptionprofile.SetupGated,
 		function.SetupGated,
 		keygroup.SetupGated,
 		monitoringsubscription.SetupGated,
+		multitenantdistribution.SetupGated,
 		originaccesscontrol.SetupGated,
 		originaccessidentity.SetupGated,
 		originrequestpolicy.SetupGated,
@@ -81,12 +90,15 @@ func SetupGated_cloudfront(mgr ctrl.Manager, o controller.Options) error {
 func SetupWebhookWithManager_cloudfront(mgr ctrl.Manager) error {
 	for _, setup := range []func(ctrl.Manager) error{
 		cachepolicy.SetupWebhookWithManager,
+		connectiongroup.SetupWebhookWithManager,
 		distribution.SetupWebhookWithManager,
+		distributiontenant.SetupWebhookWithManager,
 		fieldlevelencryptionconfig.SetupWebhookWithManager,
 		fieldlevelencryptionprofile.SetupWebhookWithManager,
 		function.SetupWebhookWithManager,
 		keygroup.SetupWebhookWithManager,
 		monitoringsubscription.SetupWebhookWithManager,
+		multitenantdistribution.SetupWebhookWithManager,
 		originaccesscontrol.SetupWebhookWithManager,
 		originaccessidentity.SetupWebhookWithManager,
 		originrequestpolicy.SetupWebhookWithManager,

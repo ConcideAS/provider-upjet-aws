@@ -1,0 +1,2234 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: multitenantdistributions.cloudfront.aws.m.upbound.io
+spec:
+  group: cloudfront.aws.m.upbound.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - aws
+    kind: MultitenantDistribution
+    listKind: MultitenantDistributionList
+    plural: multitenantdistributions
+    singular: multitenantdistribution
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: MultitenantDistribution is the Schema for the MultitenantDistributions
+          API. Provides a CloudFront multi-tenant distribution resource.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: MultitenantDistributionSpec defines the desired state of
+              MultitenantDistribution
+            properties:
+              forProvider:
+                properties:
+                  activeTrustedKeyGroups:
+                    description: List of key groups that CloudFront can use to validate
+                      signed URLs or signed cookies. See Active Trusted Key Groups
+                      below.
+                    items:
+                      properties:
+                        items:
+                          description: List of ISO 3166-1-alpha-2 country codes for
+                            which you want CloudFront either to distribute your content
+                            (whitelist) or not distribute your content (blacklist).
+                            Required when restriction_type is whitelist or blacklist.
+                          items:
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  cacheBehavior:
+                    description: Ordered list of cache behaviors resource for this
+                      distribution. See Cache Behavior below.
+                    items:
+                      properties:
+                        allowedMethods:
+                          description: Controls which HTTP methods CloudFront processes
+                            and forwards to your Amazon S3 bucket or your custom origin.
+                          properties:
+                            cachedMethods:
+                              description: Controls whether CloudFront caches the
+                                response to requests using the specified HTTP methods.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                            items:
+                              description: List of ISO 3166-1-alpha-2 country codes
+                                for which you want CloudFront either to distribute
+                                your content (whitelist) or not distribute your content
+                                (blacklist). Required when restriction_type is whitelist
+                                or blacklist.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        cachePolicyId:
+                          description: Unique identifier of the cache policy that
+                            is attached to the cache behavior.
+                          type: string
+                        compress:
+                          description: 'Whether you want CloudFront to automatically
+                            compress content for web requests that include Accept-Encoding:
+                            gzip in the request header. Default: false.'
+                          type: boolean
+                        fieldLevelEncryptionId:
+                          description: Field level encryption configuration ID.
+                          type: string
+                        functionAssociation:
+                          description: Configuration block for CloudFront Functions
+                            associations. See Function Association below.
+                          items:
+                            properties:
+                              eventType:
+                                description: 'Specific event to trigger this function.
+                                  Valid values: viewer-request, origin-request, viewer-response,
+                                  origin-response.'
+                                type: string
+                              functionArn:
+                                description: ARN of the CloudFront function.
+                                type: string
+                            type: object
+                          type: array
+                        lambdaFunctionAssociation:
+                          description: Configuration block for Lambda@Edge associations.
+                            See Lambda Function Association below.
+                          items:
+                            properties:
+                              eventType:
+                                description: 'Specific event to trigger this function.
+                                  Valid values: viewer-request, origin-request, viewer-response,
+                                  origin-response.'
+                                type: string
+                              includeBody:
+                                description: 'When set to true, the request body is
+                                  exposed to the Lambda function. Default: false.'
+                                type: boolean
+                              lambdaFunctionArn:
+                                description: ARN of the Lambda function.
+                                type: string
+                            type: object
+                          type: array
+                        originRequestPolicyId:
+                          description: Unique identifier of the origin request policy
+                            that is attached to the behavior.
+                          type: string
+                        pathPattern:
+                          description: Pattern that specifies which requests you want
+                            this cache behavior to apply to.
+                          type: string
+                        realtimeLogConfigArn:
+                          description: ARN of the real-time log configuration that
+                            is attached to this cache behavior.
+                          type: string
+                        responseHeadersPolicyId:
+                          description: Identifier for a response headers policy.
+                          type: string
+                        targetOriginId:
+                          description: Value of ID for the origin that you want CloudFront
+                            to route requests to when a request matches the path pattern
+                            either for a cache behavior or for the default cache behavior.
+                          type: string
+                        trustedKeyGroups:
+                          description: List of key group IDs that CloudFront can use
+                            to validate signed URLs or signed cookies.
+                          properties:
+                            enabled:
+                              description: Whether the distribution is enabled to
+                                accept end user requests for content.
+                              type: boolean
+                            items:
+                              description: List of ISO 3166-1-alpha-2 country codes
+                                for which you want CloudFront either to distribute
+                                your content (whitelist) or not distribute your content
+                                (blacklist). Required when restriction_type is whitelist
+                                or blacklist.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        viewerProtocolPolicy:
+                          description: Use this element to specify the protocol that
+                            users can use to access the files in the origin specified
+                            by TargetOriginId when a request matches the path pattern
+                            in PathPattern. One of allow-all, https-only, or redirect-to-https.
+                          type: string
+                      type: object
+                    type: array
+                  comment:
+                    description: Any comments you want to include about the distribution.
+                    type: string
+                  customErrorResponse:
+                    description: One or more custom error response elements. See Custom
+                      Error Response below.
+                    items:
+                      properties:
+                        errorCachingMinTtl:
+                          description: Minimum amount of time that you want CloudFront
+                            to cache the HTTP status code specified in ErrorCode.
+                          type: number
+                        errorCode:
+                          description: HTTP status code for which you want to specify
+                            a custom error page and/or a caching duration.
+                          type: number
+                        responseCode:
+                          description: HTTP status code that you want CloudFront to
+                            return to the viewer along with the custom error page.
+                            Both response_code and response_page_path must be specified
+                            or both must be omitted.
+                          type: string
+                        responsePagePath:
+                          description: Path to the custom error page that you want
+                            CloudFront to return to a viewer when your origin returns
+                            the HTTP status code specified by ErrorCode. Both response_code
+                            and response_page_path must be specified or both must
+                            be omitted.
+                          type: string
+                      type: object
+                    type: array
+                  defaultCacheBehavior:
+                    description: Default cache behavior for this distribution. See
+                      Default Cache Behavior below.
+                    properties:
+                      allowedMethods:
+                        description: Controls which HTTP methods CloudFront processes
+                          and forwards to your Amazon S3 bucket or your custom origin.
+                        properties:
+                          cachedMethods:
+                            description: Controls whether CloudFront caches the response
+                              to requests using the specified HTTP methods.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                        type: object
+                      cachePolicyId:
+                        description: Unique identifier of the cache policy that is
+                          attached to the cache behavior.
+                        type: string
+                      cachePolicyIdRef:
+                        description: Reference to a CachePolicy in cloudfront to populate
+                          cachePolicyId.
+                        properties:
+                          name:
+                            description: Name of the referenced object.
+                            type: string
+                          namespace:
+                            description: Namespace of the referenced object
+                            type: string
+                          policy:
+                            description: Policies for referencing.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        required:
+                        - name
+                        type: object
+                      cachePolicyIdSelector:
+                        description: Selector for a CachePolicy in cloudfront to populate
+                          cachePolicyId.
+                        properties:
+                          matchControllerRef:
+                            description: |-
+                              MatchControllerRef ensures an object with the same controller reference
+                              as the selecting object is selected.
+                            type: boolean
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: MatchLabels ensures an object with matching
+                              labels is selected.
+                            type: object
+                          namespace:
+                            description: Namespace for the selector
+                            type: string
+                          policy:
+                            description: Policies for selection.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        type: object
+                      compress:
+                        description: 'Whether you want CloudFront to automatically
+                          compress content for web requests that include Accept-Encoding:
+                          gzip in the request header. Default: false.'
+                        type: boolean
+                      fieldLevelEncryptionId:
+                        description: Field level encryption configuration ID.
+                        type: string
+                      functionAssociation:
+                        description: Configuration block for CloudFront Functions
+                          associations. See Function Association below.
+                        items:
+                          properties:
+                            eventType:
+                              description: 'Specific event to trigger this function.
+                                Valid values: viewer-request, origin-request, viewer-response,
+                                origin-response.'
+                              type: string
+                            functionArn:
+                              description: ARN of the CloudFront function.
+                              type: string
+                          type: object
+                        type: array
+                      lambdaFunctionAssociation:
+                        description: Configuration block for Lambda@Edge associations.
+                          See Lambda Function Association below.
+                        items:
+                          properties:
+                            eventType:
+                              description: 'Specific event to trigger this function.
+                                Valid values: viewer-request, origin-request, viewer-response,
+                                origin-response.'
+                              type: string
+                            includeBody:
+                              description: 'When set to true, the request body is
+                                exposed to the Lambda function. Default: false.'
+                              type: boolean
+                            lambdaFunctionArn:
+                              description: ARN of the Lambda function.
+                              type: string
+                          type: object
+                        type: array
+                      originRequestPolicyId:
+                        description: Unique identifier of the origin request policy
+                          that is attached to the behavior.
+                        type: string
+                      realtimeLogConfigArn:
+                        description: ARN of the real-time log configuration that is
+                          attached to this cache behavior.
+                        type: string
+                      responseHeadersPolicyId:
+                        description: Identifier for a response headers policy.
+                        type: string
+                      targetOriginId:
+                        description: Value of ID for the origin that you want CloudFront
+                          to route requests to when a request matches the path pattern
+                          either for a cache behavior or for the default cache behavior.
+                        type: string
+                      trustedKeyGroups:
+                        description: List of key group IDs that CloudFront can use
+                          to validate signed URLs or signed cookies.
+                        properties:
+                          enabled:
+                            description: Whether the distribution is enabled to accept
+                              end user requests for content.
+                            type: boolean
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      viewerProtocolPolicy:
+                        description: Use this element to specify the protocol that
+                          users can use to access the files in the origin specified
+                          by TargetOriginId when a request matches the path pattern
+                          in PathPattern. One of allow-all, https-only, or redirect-to-https.
+                        type: string
+                    type: object
+                  defaultRootObject:
+                    description: Object that you want CloudFront to return when an
+                      end user requests the root URL.
+                    type: string
+                  enabled:
+                    description: Whether the distribution is enabled to accept end
+                      user requests for content.
+                    type: boolean
+                  httpVersion:
+                    description: 'Maximum HTTP version to support on the distribution.
+                      Allowed values are http1.1, http2, http2and3, and http3. Default:
+                      http2.'
+                    type: string
+                  origin:
+                    description: One or more origins for this distribution (multiples
+                      allowed). See Origin below.
+                    items:
+                      properties:
+                        connectionAttempts:
+                          description: 'Number of times that CloudFront attempts to
+                            connect to the origin. Must be between 1-3. Default: 3.'
+                          type: number
+                        connectionTimeout:
+                          description: 'Number of seconds that CloudFront waits when
+                            trying to establish a connection to the origin. Must be
+                            between 1-10. Default: 10.'
+                          type: number
+                        customHeader:
+                          description: One or more sub-resources with name and value
+                            parameters that specify header data that will be sent
+                            to the origin. See Custom Header below.
+                          items:
+                            properties:
+                              headerName:
+                                description: Name of the header.
+                                type: string
+                              headerValue:
+                                description: Value for the header.
+                                type: string
+                            type: object
+                          type: array
+                        customOriginConfig:
+                          description: CloudFront origin access identity to associate
+                            with the origin. See Custom Origin Config below.
+                          properties:
+                            httpPort:
+                              description: HTTP port the custom origin listens on.
+                              type: number
+                            httpsPort:
+                              description: HTTPS port the custom origin listens on.
+                              type: number
+                            ipAddressType:
+                              description: Type of IP addresses used by your origins.
+                                Valid values are ipv4 and dualstack.
+                              type: string
+                            originKeepaliveTimeout:
+                              description: 'Custom keep-alive timeout, in seconds.
+                                Default: 5.'
+                              type: number
+                            originMtlsConfig:
+                              description: Origin mTLS configuration for mutual TLS
+                                authentication between CloudFront and your origin.
+                                See Origin mTLS Config below.
+                              properties:
+                                clientCertificateArn:
+                                  description: ARN of the ACM certificate to use for
+                                    mutual TLS authentication with the origin. The
+                                    certificate must have Extended Key Usage set to
+                                    TLS Client Authentication.
+                                  type: string
+                              type: object
+                            originProtocolPolicy:
+                              description: Origin protocol policy to apply to your
+                                origin. Valid values are http-only, https-only, and
+                                match-viewer.
+                              type: string
+                            originReadTimeout:
+                              description: 'Custom read timeout, in seconds. Default:
+                                30.'
+                              type: number
+                            originSslProtocols:
+                              description: List of SSL/TLS protocols that you want
+                                CloudFront to use when communicating with your origin
+                                over HTTPS.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        domainName:
+                          description: DNS domain name of either the S3 bucket, or
+                            web site of your custom origin.
+                          type: string
+                        id:
+                          description: Identifier for the distribution.
+                          type: string
+                        originAccessControlId:
+                          description: CloudFront origin access control identifier
+                            to associate with the origin.
+                          type: string
+                        originPath:
+                          description: Optional element that causes CloudFront to
+                            request your content from a directory in your Amazon S3
+                            bucket or your custom origin.
+                          type: string
+                        originShield:
+                          description: CloudFront Origin Shield configuration information.
+                            See Origin Shield below.
+                          properties:
+                            enabled:
+                              description: Whether the distribution is enabled to
+                                accept end user requests for content.
+                              type: boolean
+                            originShieldRegion:
+                              description: AWS Region for Origin Shield. Required
+                                when enabled is true.
+                              type: string
+                          type: object
+                        responseCompletionTimeout:
+                          description: Number of seconds that CloudFront waits for
+                            a response after forwarding a request to the origin. Must
+                            be integer greater than or equal to the value of origin_read_timeout
+                            in Custom Origin Config. If omitted, no maximum value
+                            is enforced.
+                          type: number
+                        vpcOriginConfig:
+                          description: CloudFront VPC origin configuration. See VPC
+                            Origin Config below.
+                          properties:
+                            originKeepaliveTimeout:
+                              description: 'Custom keep-alive timeout, in seconds.
+                                Default: 5.'
+                              type: number
+                            originReadTimeout:
+                              description: 'Custom read timeout, in seconds. Default:
+                                30.'
+                              type: number
+                            vpcOriginId:
+                              description: ID of the VPC origin that you want CloudFront
+                                to route requests to.
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  originGroup:
+                    description: One or more origin_group for this distribution (multiples
+                      allowed). See Origin Group below.
+                    items:
+                      properties:
+                        failoverCriteria:
+                          description: Failover criteria for when to failover to the
+                            secondary origin. See Failover Criteria below.
+                          properties:
+                            statusCodes:
+                              description: List of HTTP status codes that trigger
+                                a failover to the secondary origin.
+                              items:
+                                type: number
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        id:
+                          description: Identifier for the distribution.
+                          type: string
+                        member:
+                          description: List of origins in this origin group. Must
+                            contain exactly 2 members. See Origin Group Member below.
+                          items:
+                            properties:
+                              originId:
+                                description: Unique identifier for the origin.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  restrictions:
+                    description: Restriction configuration for this distribution.
+                      See Restrictions below.
+                    properties:
+                      geoRestriction:
+                        description: Geographic restriction configuration. See Geo
+                          Restriction below.
+                        properties:
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                          restrictionType:
+                            description: Method to restrict distribution of your content
+                              by country. Valid values are none, whitelist, and blacklist.
+                            type: string
+                        type: object
+                    type: object
+                  tags:
+                    additionalProperties:
+                      type: string
+                    description: Key-value map of resource tags.
+                    type: object
+                    x-kubernetes-map-type: granular
+                  tenantConfig:
+                    description: Tenant configuration that contains parameter definitions
+                      for multi-tenant distributions. See Tenant Config below.
+                    properties:
+                      parameterDefinition:
+                        description: One or more parameter definitions for the tenant
+                          configuration. See Parameter Definition below.
+                        items:
+                          properties:
+                            definition:
+                              description: Definition of the parameter schema. See
+                                Parameter Definition Schema below.
+                              properties:
+                                stringSchema:
+                                  description: String schema configuration. See String
+                                    Schema below.
+                                  properties:
+                                    comment:
+                                      description: Any comments you want to include
+                                        about the distribution.
+                                      type: string
+                                    defaultValue:
+                                      description: Default value for the parameter.
+                                      type: string
+                                    required:
+                                      description: Whether the parameter is required.
+                                      type: boolean
+                                  type: object
+                              type: object
+                            name:
+                              description: Name of the parameter.
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                  viewerCertificate:
+                    description: SSL configuration for this distribution. See Viewer
+                      Certificate below.
+                    properties:
+                      acmCertificateArn:
+                        description: ARN of the AWS Certificate Manager certificate
+                          that you wish to use with this distribution. Required when
+                          using a custom SSL certificate.
+                        type: string
+                      acmCertificateArnRef:
+                        description: Reference to a Certificate in acm to populate
+                          acmCertificateArn.
+                        properties:
+                          name:
+                            description: Name of the referenced object.
+                            type: string
+                          namespace:
+                            description: Namespace of the referenced object
+                            type: string
+                          policy:
+                            description: Policies for referencing.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        required:
+                        - name
+                        type: object
+                      acmCertificateArnSelector:
+                        description: Selector for a Certificate in acm to populate
+                          acmCertificateArn.
+                        properties:
+                          matchControllerRef:
+                            description: |-
+                              MatchControllerRef ensures an object with the same controller reference
+                              as the selecting object is selected.
+                            type: boolean
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: MatchLabels ensures an object with matching
+                              labels is selected.
+                            type: object
+                          namespace:
+                            description: Namespace for the selector
+                            type: string
+                          policy:
+                            description: Policies for selection.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        type: object
+                      cloudfrontDefaultCertificate:
+                        description: Whether to use the CloudFront default certificate.
+                          Cannot be used with acm_certificate_arn.
+                        type: boolean
+                      minimumProtocolVersion:
+                        description: 'Minimum version of the SSL protocol that you
+                          want CloudFront to use for HTTPS connections. Default: TLSv1.'
+                        type: string
+                      sslSupportMethod:
+                        description: How you want CloudFront to serve HTTPS requests.
+                          Valid values are sni-only and vip. Required when acm_certificate_arn
+                          is specified.
+                        type: string
+                    type: object
+                  webAclId:
+                    description: Unique identifier that specifies the AWS WAF v2 web
+                      ACL to associate with this distribution.
+                    type: string
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  activeTrustedKeyGroups:
+                    description: List of key groups that CloudFront can use to validate
+                      signed URLs or signed cookies. See Active Trusted Key Groups
+                      below.
+                    items:
+                      properties:
+                        items:
+                          description: List of ISO 3166-1-alpha-2 country codes for
+                            which you want CloudFront either to distribute your content
+                            (whitelist) or not distribute your content (blacklist).
+                            Required when restriction_type is whitelist or blacklist.
+                          items:
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  cacheBehavior:
+                    description: Ordered list of cache behaviors resource for this
+                      distribution. See Cache Behavior below.
+                    items:
+                      properties:
+                        allowedMethods:
+                          description: Controls which HTTP methods CloudFront processes
+                            and forwards to your Amazon S3 bucket or your custom origin.
+                          properties:
+                            cachedMethods:
+                              description: Controls whether CloudFront caches the
+                                response to requests using the specified HTTP methods.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                            items:
+                              description: List of ISO 3166-1-alpha-2 country codes
+                                for which you want CloudFront either to distribute
+                                your content (whitelist) or not distribute your content
+                                (blacklist). Required when restriction_type is whitelist
+                                or blacklist.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        cachePolicyId:
+                          description: Unique identifier of the cache policy that
+                            is attached to the cache behavior.
+                          type: string
+                        compress:
+                          description: 'Whether you want CloudFront to automatically
+                            compress content for web requests that include Accept-Encoding:
+                            gzip in the request header. Default: false.'
+                          type: boolean
+                        fieldLevelEncryptionId:
+                          description: Field level encryption configuration ID.
+                          type: string
+                        functionAssociation:
+                          description: Configuration block for CloudFront Functions
+                            associations. See Function Association below.
+                          items:
+                            properties:
+                              eventType:
+                                description: 'Specific event to trigger this function.
+                                  Valid values: viewer-request, origin-request, viewer-response,
+                                  origin-response.'
+                                type: string
+                              functionArn:
+                                description: ARN of the CloudFront function.
+                                type: string
+                            type: object
+                          type: array
+                        lambdaFunctionAssociation:
+                          description: Configuration block for Lambda@Edge associations.
+                            See Lambda Function Association below.
+                          items:
+                            properties:
+                              eventType:
+                                description: 'Specific event to trigger this function.
+                                  Valid values: viewer-request, origin-request, viewer-response,
+                                  origin-response.'
+                                type: string
+                              includeBody:
+                                description: 'When set to true, the request body is
+                                  exposed to the Lambda function. Default: false.'
+                                type: boolean
+                              lambdaFunctionArn:
+                                description: ARN of the Lambda function.
+                                type: string
+                            type: object
+                          type: array
+                        originRequestPolicyId:
+                          description: Unique identifier of the origin request policy
+                            that is attached to the behavior.
+                          type: string
+                        pathPattern:
+                          description: Pattern that specifies which requests you want
+                            this cache behavior to apply to.
+                          type: string
+                        realtimeLogConfigArn:
+                          description: ARN of the real-time log configuration that
+                            is attached to this cache behavior.
+                          type: string
+                        responseHeadersPolicyId:
+                          description: Identifier for a response headers policy.
+                          type: string
+                        targetOriginId:
+                          description: Value of ID for the origin that you want CloudFront
+                            to route requests to when a request matches the path pattern
+                            either for a cache behavior or for the default cache behavior.
+                          type: string
+                        trustedKeyGroups:
+                          description: List of key group IDs that CloudFront can use
+                            to validate signed URLs or signed cookies.
+                          properties:
+                            enabled:
+                              description: Whether the distribution is enabled to
+                                accept end user requests for content.
+                              type: boolean
+                            items:
+                              description: List of ISO 3166-1-alpha-2 country codes
+                                for which you want CloudFront either to distribute
+                                your content (whitelist) or not distribute your content
+                                (blacklist). Required when restriction_type is whitelist
+                                or blacklist.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        viewerProtocolPolicy:
+                          description: Use this element to specify the protocol that
+                            users can use to access the files in the origin specified
+                            by TargetOriginId when a request matches the path pattern
+                            in PathPattern. One of allow-all, https-only, or redirect-to-https.
+                          type: string
+                      type: object
+                    type: array
+                  comment:
+                    description: Any comments you want to include about the distribution.
+                    type: string
+                  customErrorResponse:
+                    description: One or more custom error response elements. See Custom
+                      Error Response below.
+                    items:
+                      properties:
+                        errorCachingMinTtl:
+                          description: Minimum amount of time that you want CloudFront
+                            to cache the HTTP status code specified in ErrorCode.
+                          type: number
+                        errorCode:
+                          description: HTTP status code for which you want to specify
+                            a custom error page and/or a caching duration.
+                          type: number
+                        responseCode:
+                          description: HTTP status code that you want CloudFront to
+                            return to the viewer along with the custom error page.
+                            Both response_code and response_page_path must be specified
+                            or both must be omitted.
+                          type: string
+                        responsePagePath:
+                          description: Path to the custom error page that you want
+                            CloudFront to return to a viewer when your origin returns
+                            the HTTP status code specified by ErrorCode. Both response_code
+                            and response_page_path must be specified or both must
+                            be omitted.
+                          type: string
+                      type: object
+                    type: array
+                  defaultCacheBehavior:
+                    description: Default cache behavior for this distribution. See
+                      Default Cache Behavior below.
+                    properties:
+                      allowedMethods:
+                        description: Controls which HTTP methods CloudFront processes
+                          and forwards to your Amazon S3 bucket or your custom origin.
+                        properties:
+                          cachedMethods:
+                            description: Controls whether CloudFront caches the response
+                              to requests using the specified HTTP methods.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                        type: object
+                      cachePolicyId:
+                        description: Unique identifier of the cache policy that is
+                          attached to the cache behavior.
+                        type: string
+                      cachePolicyIdRef:
+                        description: Reference to a CachePolicy in cloudfront to populate
+                          cachePolicyId.
+                        properties:
+                          name:
+                            description: Name of the referenced object.
+                            type: string
+                          namespace:
+                            description: Namespace of the referenced object
+                            type: string
+                          policy:
+                            description: Policies for referencing.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        required:
+                        - name
+                        type: object
+                      cachePolicyIdSelector:
+                        description: Selector for a CachePolicy in cloudfront to populate
+                          cachePolicyId.
+                        properties:
+                          matchControllerRef:
+                            description: |-
+                              MatchControllerRef ensures an object with the same controller reference
+                              as the selecting object is selected.
+                            type: boolean
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: MatchLabels ensures an object with matching
+                              labels is selected.
+                            type: object
+                          namespace:
+                            description: Namespace for the selector
+                            type: string
+                          policy:
+                            description: Policies for selection.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        type: object
+                      compress:
+                        description: 'Whether you want CloudFront to automatically
+                          compress content for web requests that include Accept-Encoding:
+                          gzip in the request header. Default: false.'
+                        type: boolean
+                      fieldLevelEncryptionId:
+                        description: Field level encryption configuration ID.
+                        type: string
+                      functionAssociation:
+                        description: Configuration block for CloudFront Functions
+                          associations. See Function Association below.
+                        items:
+                          properties:
+                            eventType:
+                              description: 'Specific event to trigger this function.
+                                Valid values: viewer-request, origin-request, viewer-response,
+                                origin-response.'
+                              type: string
+                            functionArn:
+                              description: ARN of the CloudFront function.
+                              type: string
+                          type: object
+                        type: array
+                      lambdaFunctionAssociation:
+                        description: Configuration block for Lambda@Edge associations.
+                          See Lambda Function Association below.
+                        items:
+                          properties:
+                            eventType:
+                              description: 'Specific event to trigger this function.
+                                Valid values: viewer-request, origin-request, viewer-response,
+                                origin-response.'
+                              type: string
+                            includeBody:
+                              description: 'When set to true, the request body is
+                                exposed to the Lambda function. Default: false.'
+                              type: boolean
+                            lambdaFunctionArn:
+                              description: ARN of the Lambda function.
+                              type: string
+                          type: object
+                        type: array
+                      originRequestPolicyId:
+                        description: Unique identifier of the origin request policy
+                          that is attached to the behavior.
+                        type: string
+                      realtimeLogConfigArn:
+                        description: ARN of the real-time log configuration that is
+                          attached to this cache behavior.
+                        type: string
+                      responseHeadersPolicyId:
+                        description: Identifier for a response headers policy.
+                        type: string
+                      targetOriginId:
+                        description: Value of ID for the origin that you want CloudFront
+                          to route requests to when a request matches the path pattern
+                          either for a cache behavior or for the default cache behavior.
+                        type: string
+                      trustedKeyGroups:
+                        description: List of key group IDs that CloudFront can use
+                          to validate signed URLs or signed cookies.
+                        properties:
+                          enabled:
+                            description: Whether the distribution is enabled to accept
+                              end user requests for content.
+                            type: boolean
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      viewerProtocolPolicy:
+                        description: Use this element to specify the protocol that
+                          users can use to access the files in the origin specified
+                          by TargetOriginId when a request matches the path pattern
+                          in PathPattern. One of allow-all, https-only, or redirect-to-https.
+                        type: string
+                    type: object
+                  defaultRootObject:
+                    description: Object that you want CloudFront to return when an
+                      end user requests the root URL.
+                    type: string
+                  enabled:
+                    description: Whether the distribution is enabled to accept end
+                      user requests for content.
+                    type: boolean
+                  httpVersion:
+                    description: 'Maximum HTTP version to support on the distribution.
+                      Allowed values are http1.1, http2, http2and3, and http3. Default:
+                      http2.'
+                    type: string
+                  origin:
+                    description: One or more origins for this distribution (multiples
+                      allowed). See Origin below.
+                    items:
+                      properties:
+                        connectionAttempts:
+                          description: 'Number of times that CloudFront attempts to
+                            connect to the origin. Must be between 1-3. Default: 3.'
+                          type: number
+                        connectionTimeout:
+                          description: 'Number of seconds that CloudFront waits when
+                            trying to establish a connection to the origin. Must be
+                            between 1-10. Default: 10.'
+                          type: number
+                        customHeader:
+                          description: One or more sub-resources with name and value
+                            parameters that specify header data that will be sent
+                            to the origin. See Custom Header below.
+                          items:
+                            properties:
+                              headerName:
+                                description: Name of the header.
+                                type: string
+                              headerValue:
+                                description: Value for the header.
+                                type: string
+                            type: object
+                          type: array
+                        customOriginConfig:
+                          description: CloudFront origin access identity to associate
+                            with the origin. See Custom Origin Config below.
+                          properties:
+                            httpPort:
+                              description: HTTP port the custom origin listens on.
+                              type: number
+                            httpsPort:
+                              description: HTTPS port the custom origin listens on.
+                              type: number
+                            ipAddressType:
+                              description: Type of IP addresses used by your origins.
+                                Valid values are ipv4 and dualstack.
+                              type: string
+                            originKeepaliveTimeout:
+                              description: 'Custom keep-alive timeout, in seconds.
+                                Default: 5.'
+                              type: number
+                            originMtlsConfig:
+                              description: Origin mTLS configuration for mutual TLS
+                                authentication between CloudFront and your origin.
+                                See Origin mTLS Config below.
+                              properties:
+                                clientCertificateArn:
+                                  description: ARN of the ACM certificate to use for
+                                    mutual TLS authentication with the origin. The
+                                    certificate must have Extended Key Usage set to
+                                    TLS Client Authentication.
+                                  type: string
+                              type: object
+                            originProtocolPolicy:
+                              description: Origin protocol policy to apply to your
+                                origin. Valid values are http-only, https-only, and
+                                match-viewer.
+                              type: string
+                            originReadTimeout:
+                              description: 'Custom read timeout, in seconds. Default:
+                                30.'
+                              type: number
+                            originSslProtocols:
+                              description: List of SSL/TLS protocols that you want
+                                CloudFront to use when communicating with your origin
+                                over HTTPS.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        domainName:
+                          description: DNS domain name of either the S3 bucket, or
+                            web site of your custom origin.
+                          type: string
+                        id:
+                          description: Identifier for the distribution.
+                          type: string
+                        originAccessControlId:
+                          description: CloudFront origin access control identifier
+                            to associate with the origin.
+                          type: string
+                        originPath:
+                          description: Optional element that causes CloudFront to
+                            request your content from a directory in your Amazon S3
+                            bucket or your custom origin.
+                          type: string
+                        originShield:
+                          description: CloudFront Origin Shield configuration information.
+                            See Origin Shield below.
+                          properties:
+                            enabled:
+                              description: Whether the distribution is enabled to
+                                accept end user requests for content.
+                              type: boolean
+                            originShieldRegion:
+                              description: AWS Region for Origin Shield. Required
+                                when enabled is true.
+                              type: string
+                          type: object
+                        responseCompletionTimeout:
+                          description: Number of seconds that CloudFront waits for
+                            a response after forwarding a request to the origin. Must
+                            be integer greater than or equal to the value of origin_read_timeout
+                            in Custom Origin Config. If omitted, no maximum value
+                            is enforced.
+                          type: number
+                        vpcOriginConfig:
+                          description: CloudFront VPC origin configuration. See VPC
+                            Origin Config below.
+                          properties:
+                            originKeepaliveTimeout:
+                              description: 'Custom keep-alive timeout, in seconds.
+                                Default: 5.'
+                              type: number
+                            originReadTimeout:
+                              description: 'Custom read timeout, in seconds. Default:
+                                30.'
+                              type: number
+                            vpcOriginId:
+                              description: ID of the VPC origin that you want CloudFront
+                                to route requests to.
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  originGroup:
+                    description: One or more origin_group for this distribution (multiples
+                      allowed). See Origin Group below.
+                    items:
+                      properties:
+                        failoverCriteria:
+                          description: Failover criteria for when to failover to the
+                            secondary origin. See Failover Criteria below.
+                          properties:
+                            statusCodes:
+                              description: List of HTTP status codes that trigger
+                                a failover to the secondary origin.
+                              items:
+                                type: number
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        id:
+                          description: Identifier for the distribution.
+                          type: string
+                        member:
+                          description: List of origins in this origin group. Must
+                            contain exactly 2 members. See Origin Group Member below.
+                          items:
+                            properties:
+                              originId:
+                                description: Unique identifier for the origin.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  restrictions:
+                    description: Restriction configuration for this distribution.
+                      See Restrictions below.
+                    properties:
+                      geoRestriction:
+                        description: Geographic restriction configuration. See Geo
+                          Restriction below.
+                        properties:
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                          restrictionType:
+                            description: Method to restrict distribution of your content
+                              by country. Valid values are none, whitelist, and blacklist.
+                            type: string
+                        type: object
+                    type: object
+                  tags:
+                    additionalProperties:
+                      type: string
+                    description: Key-value map of resource tags.
+                    type: object
+                    x-kubernetes-map-type: granular
+                  tenantConfig:
+                    description: Tenant configuration that contains parameter definitions
+                      for multi-tenant distributions. See Tenant Config below.
+                    properties:
+                      parameterDefinition:
+                        description: One or more parameter definitions for the tenant
+                          configuration. See Parameter Definition below.
+                        items:
+                          properties:
+                            definition:
+                              description: Definition of the parameter schema. See
+                                Parameter Definition Schema below.
+                              properties:
+                                stringSchema:
+                                  description: String schema configuration. See String
+                                    Schema below.
+                                  properties:
+                                    comment:
+                                      description: Any comments you want to include
+                                        about the distribution.
+                                      type: string
+                                    defaultValue:
+                                      description: Default value for the parameter.
+                                      type: string
+                                    required:
+                                      description: Whether the parameter is required.
+                                      type: boolean
+                                  type: object
+                              type: object
+                            name:
+                              description: Name of the parameter.
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                  viewerCertificate:
+                    description: SSL configuration for this distribution. See Viewer
+                      Certificate below.
+                    properties:
+                      acmCertificateArn:
+                        description: ARN of the AWS Certificate Manager certificate
+                          that you wish to use with this distribution. Required when
+                          using a custom SSL certificate.
+                        type: string
+                      acmCertificateArnRef:
+                        description: Reference to a Certificate in acm to populate
+                          acmCertificateArn.
+                        properties:
+                          name:
+                            description: Name of the referenced object.
+                            type: string
+                          namespace:
+                            description: Namespace of the referenced object
+                            type: string
+                          policy:
+                            description: Policies for referencing.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        required:
+                        - name
+                        type: object
+                      acmCertificateArnSelector:
+                        description: Selector for a Certificate in acm to populate
+                          acmCertificateArn.
+                        properties:
+                          matchControllerRef:
+                            description: |-
+                              MatchControllerRef ensures an object with the same controller reference
+                              as the selecting object is selected.
+                            type: boolean
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: MatchLabels ensures an object with matching
+                              labels is selected.
+                            type: object
+                          namespace:
+                            description: Namespace for the selector
+                            type: string
+                          policy:
+                            description: Policies for selection.
+                            properties:
+                              resolution:
+                                default: Required
+                                description: |-
+                                  Resolution specifies whether resolution of this reference is required.
+                                  The default is 'Required', which means the reconcile will fail if the
+                                  reference cannot be resolved. 'Optional' means this reference will be
+                                  a no-op if it cannot be resolved.
+                                enum:
+                                - Required
+                                - Optional
+                                type: string
+                              resolve:
+                                description: |-
+                                  Resolve specifies when this reference should be resolved. The default
+                                  is 'IfNotPresent', which will attempt to resolve the reference only when
+                                  the corresponding field is not present. Use 'Always' to resolve the
+                                  reference on every reconcile.
+                                enum:
+                                - Always
+                                - IfNotPresent
+                                type: string
+                            type: object
+                        type: object
+                      cloudfrontDefaultCertificate:
+                        description: Whether to use the CloudFront default certificate.
+                          Cannot be used with acm_certificate_arn.
+                        type: boolean
+                      minimumProtocolVersion:
+                        description: 'Minimum version of the SSL protocol that you
+                          want CloudFront to use for HTTPS connections. Default: TLSv1.'
+                        type: string
+                      sslSupportMethod:
+                        description: How you want CloudFront to serve HTTPS requests.
+                          Valid values are sni-only and vip. Required when acm_certificate_arn
+                          is specified.
+                        type: string
+                    type: object
+                  webAclId:
+                    description: Unique identifier that specifies the AWS WAF v2 web
+                      ACL to associate with this distribution.
+                    type: string
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  kind: ClusterProviderConfig
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  kind:
+                    description: Kind of the referenced object.
+                    type: string
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                required:
+                - name
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.comment is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.comment)
+                || (has(self.initProvider) && has(self.initProvider.comment))'
+            - message: spec.forProvider.enabled is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.enabled)
+                || (has(self.initProvider) && has(self.initProvider.enabled))'
+          status:
+            description: MultitenantDistributionStatus defines the observed state
+              of MultitenantDistribution.
+            properties:
+              atProvider:
+                properties:
+                  activeTrustedKeyGroups:
+                    description: List of key groups that CloudFront can use to validate
+                      signed URLs or signed cookies. See Active Trusted Key Groups
+                      below.
+                    items:
+                      properties:
+                        enabled:
+                          description: Whether the distribution is enabled to accept
+                            end user requests for content.
+                          type: boolean
+                        items:
+                          description: List of ISO 3166-1-alpha-2 country codes for
+                            which you want CloudFront either to distribute your content
+                            (whitelist) or not distribute your content (blacklist).
+                            Required when restriction_type is whitelist or blacklist.
+                          items:
+                            properties:
+                              keyGroupId:
+                                description: ID of the key group that contains the
+                                  public keys.
+                                type: string
+                              keyPairIds:
+                                description: Set of active CloudFront key pairs associated
+                                  with the signer that can be used to verify the signatures
+                                  of signed URLs and signed cookies.
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  arn:
+                    description: ARN for the distribution.
+                    type: string
+                  cacheBehavior:
+                    description: Ordered list of cache behaviors resource for this
+                      distribution. See Cache Behavior below.
+                    items:
+                      properties:
+                        allowedMethods:
+                          description: Controls which HTTP methods CloudFront processes
+                            and forwards to your Amazon S3 bucket or your custom origin.
+                          properties:
+                            cachedMethods:
+                              description: Controls whether CloudFront caches the
+                                response to requests using the specified HTTP methods.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                            items:
+                              description: List of ISO 3166-1-alpha-2 country codes
+                                for which you want CloudFront either to distribute
+                                your content (whitelist) or not distribute your content
+                                (blacklist). Required when restriction_type is whitelist
+                                or blacklist.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        cachePolicyId:
+                          description: Unique identifier of the cache policy that
+                            is attached to the cache behavior.
+                          type: string
+                        compress:
+                          description: 'Whether you want CloudFront to automatically
+                            compress content for web requests that include Accept-Encoding:
+                            gzip in the request header. Default: false.'
+                          type: boolean
+                        fieldLevelEncryptionId:
+                          description: Field level encryption configuration ID.
+                          type: string
+                        functionAssociation:
+                          description: Configuration block for CloudFront Functions
+                            associations. See Function Association below.
+                          items:
+                            properties:
+                              eventType:
+                                description: 'Specific event to trigger this function.
+                                  Valid values: viewer-request, origin-request, viewer-response,
+                                  origin-response.'
+                                type: string
+                              functionArn:
+                                description: ARN of the CloudFront function.
+                                type: string
+                            type: object
+                          type: array
+                        lambdaFunctionAssociation:
+                          description: Configuration block for Lambda@Edge associations.
+                            See Lambda Function Association below.
+                          items:
+                            properties:
+                              eventType:
+                                description: 'Specific event to trigger this function.
+                                  Valid values: viewer-request, origin-request, viewer-response,
+                                  origin-response.'
+                                type: string
+                              includeBody:
+                                description: 'When set to true, the request body is
+                                  exposed to the Lambda function. Default: false.'
+                                type: boolean
+                              lambdaFunctionArn:
+                                description: ARN of the Lambda function.
+                                type: string
+                            type: object
+                          type: array
+                        originRequestPolicyId:
+                          description: Unique identifier of the origin request policy
+                            that is attached to the behavior.
+                          type: string
+                        pathPattern:
+                          description: Pattern that specifies which requests you want
+                            this cache behavior to apply to.
+                          type: string
+                        realtimeLogConfigArn:
+                          description: ARN of the real-time log configuration that
+                            is attached to this cache behavior.
+                          type: string
+                        responseHeadersPolicyId:
+                          description: Identifier for a response headers policy.
+                          type: string
+                        targetOriginId:
+                          description: Value of ID for the origin that you want CloudFront
+                            to route requests to when a request matches the path pattern
+                            either for a cache behavior or for the default cache behavior.
+                          type: string
+                        trustedKeyGroups:
+                          description: List of key group IDs that CloudFront can use
+                            to validate signed URLs or signed cookies.
+                          properties:
+                            enabled:
+                              description: Whether the distribution is enabled to
+                                accept end user requests for content.
+                              type: boolean
+                            items:
+                              description: List of ISO 3166-1-alpha-2 country codes
+                                for which you want CloudFront either to distribute
+                                your content (whitelist) or not distribute your content
+                                (blacklist). Required when restriction_type is whitelist
+                                or blacklist.
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        viewerProtocolPolicy:
+                          description: Use this element to specify the protocol that
+                            users can use to access the files in the origin specified
+                            by TargetOriginId when a request matches the path pattern
+                            in PathPattern. One of allow-all, https-only, or redirect-to-https.
+                          type: string
+                      type: object
+                    type: array
+                  callerReference:
+                    description: Internal value used by CloudFront to allow future
+                      updates to the distribution configuration.
+                    type: string
+                  comment:
+                    description: Any comments you want to include about the distribution.
+                    type: string
+                  connectionMode:
+                    description: Connection mode for the distribution. Always set
+                      to tenant-only for multi-tenant distributions.
+                    type: string
+                  customErrorResponse:
+                    description: One or more custom error response elements. See Custom
+                      Error Response below.
+                    items:
+                      properties:
+                        errorCachingMinTtl:
+                          description: Minimum amount of time that you want CloudFront
+                            to cache the HTTP status code specified in ErrorCode.
+                          type: number
+                        errorCode:
+                          description: HTTP status code for which you want to specify
+                            a custom error page and/or a caching duration.
+                          type: number
+                        responseCode:
+                          description: HTTP status code that you want CloudFront to
+                            return to the viewer along with the custom error page.
+                            Both response_code and response_page_path must be specified
+                            or both must be omitted.
+                          type: string
+                        responsePagePath:
+                          description: Path to the custom error page that you want
+                            CloudFront to return to a viewer when your origin returns
+                            the HTTP status code specified by ErrorCode. Both response_code
+                            and response_page_path must be specified or both must
+                            be omitted.
+                          type: string
+                      type: object
+                    type: array
+                  defaultCacheBehavior:
+                    description: Default cache behavior for this distribution. See
+                      Default Cache Behavior below.
+                    properties:
+                      allowedMethods:
+                        description: Controls which HTTP methods CloudFront processes
+                          and forwards to your Amazon S3 bucket or your custom origin.
+                        properties:
+                          cachedMethods:
+                            description: Controls whether CloudFront caches the response
+                              to requests using the specified HTTP methods.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                        type: object
+                      cachePolicyId:
+                        description: Unique identifier of the cache policy that is
+                          attached to the cache behavior.
+                        type: string
+                      compress:
+                        description: 'Whether you want CloudFront to automatically
+                          compress content for web requests that include Accept-Encoding:
+                          gzip in the request header. Default: false.'
+                        type: boolean
+                      fieldLevelEncryptionId:
+                        description: Field level encryption configuration ID.
+                        type: string
+                      functionAssociation:
+                        description: Configuration block for CloudFront Functions
+                          associations. See Function Association below.
+                        items:
+                          properties:
+                            eventType:
+                              description: 'Specific event to trigger this function.
+                                Valid values: viewer-request, origin-request, viewer-response,
+                                origin-response.'
+                              type: string
+                            functionArn:
+                              description: ARN of the CloudFront function.
+                              type: string
+                          type: object
+                        type: array
+                      lambdaFunctionAssociation:
+                        description: Configuration block for Lambda@Edge associations.
+                          See Lambda Function Association below.
+                        items:
+                          properties:
+                            eventType:
+                              description: 'Specific event to trigger this function.
+                                Valid values: viewer-request, origin-request, viewer-response,
+                                origin-response.'
+                              type: string
+                            includeBody:
+                              description: 'When set to true, the request body is
+                                exposed to the Lambda function. Default: false.'
+                              type: boolean
+                            lambdaFunctionArn:
+                              description: ARN of the Lambda function.
+                              type: string
+                          type: object
+                        type: array
+                      originRequestPolicyId:
+                        description: Unique identifier of the origin request policy
+                          that is attached to the behavior.
+                        type: string
+                      realtimeLogConfigArn:
+                        description: ARN of the real-time log configuration that is
+                          attached to this cache behavior.
+                        type: string
+                      responseHeadersPolicyId:
+                        description: Identifier for a response headers policy.
+                        type: string
+                      targetOriginId:
+                        description: Value of ID for the origin that you want CloudFront
+                          to route requests to when a request matches the path pattern
+                          either for a cache behavior or for the default cache behavior.
+                        type: string
+                      trustedKeyGroups:
+                        description: List of key group IDs that CloudFront can use
+                          to validate signed URLs or signed cookies.
+                        properties:
+                          enabled:
+                            description: Whether the distribution is enabled to accept
+                              end user requests for content.
+                            type: boolean
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      viewerProtocolPolicy:
+                        description: Use this element to specify the protocol that
+                          users can use to access the files in the origin specified
+                          by TargetOriginId when a request matches the path pattern
+                          in PathPattern. One of allow-all, https-only, or redirect-to-https.
+                        type: string
+                    type: object
+                  defaultRootObject:
+                    description: Object that you want CloudFront to return when an
+                      end user requests the root URL.
+                    type: string
+                  domainName:
+                    description: DNS domain name of either the S3 bucket, or web site
+                      of your custom origin.
+                    type: string
+                  enabled:
+                    description: Whether the distribution is enabled to accept end
+                      user requests for content.
+                    type: boolean
+                  etag:
+                    description: Current version of the distribution's information.
+                    type: string
+                  httpVersion:
+                    description: 'Maximum HTTP version to support on the distribution.
+                      Allowed values are http1.1, http2, http2and3, and http3. Default:
+                      http2.'
+                    type: string
+                  id:
+                    description: Identifier for the distribution.
+                    type: string
+                  inProgressInvalidationBatches:
+                    description: Number of invalidation batches currently in progress.
+                    type: number
+                  lastModifiedTime:
+                    description: Date and time the distribution was last modified.
+                    type: string
+                  origin:
+                    description: One or more origins for this distribution (multiples
+                      allowed). See Origin below.
+                    items:
+                      properties:
+                        connectionAttempts:
+                          description: 'Number of times that CloudFront attempts to
+                            connect to the origin. Must be between 1-3. Default: 3.'
+                          type: number
+                        connectionTimeout:
+                          description: 'Number of seconds that CloudFront waits when
+                            trying to establish a connection to the origin. Must be
+                            between 1-10. Default: 10.'
+                          type: number
+                        customHeader:
+                          description: One or more sub-resources with name and value
+                            parameters that specify header data that will be sent
+                            to the origin. See Custom Header below.
+                          items:
+                            properties:
+                              headerName:
+                                description: Name of the header.
+                                type: string
+                              headerValue:
+                                description: Value for the header.
+                                type: string
+                            type: object
+                          type: array
+                        customOriginConfig:
+                          description: CloudFront origin access identity to associate
+                            with the origin. See Custom Origin Config below.
+                          properties:
+                            httpPort:
+                              description: HTTP port the custom origin listens on.
+                              type: number
+                            httpsPort:
+                              description: HTTPS port the custom origin listens on.
+                              type: number
+                            ipAddressType:
+                              description: Type of IP addresses used by your origins.
+                                Valid values are ipv4 and dualstack.
+                              type: string
+                            originKeepaliveTimeout:
+                              description: 'Custom keep-alive timeout, in seconds.
+                                Default: 5.'
+                              type: number
+                            originMtlsConfig:
+                              description: Origin mTLS configuration for mutual TLS
+                                authentication between CloudFront and your origin.
+                                See Origin mTLS Config below.
+                              properties:
+                                clientCertificateArn:
+                                  description: ARN of the ACM certificate to use for
+                                    mutual TLS authentication with the origin. The
+                                    certificate must have Extended Key Usage set to
+                                    TLS Client Authentication.
+                                  type: string
+                              type: object
+                            originProtocolPolicy:
+                              description: Origin protocol policy to apply to your
+                                origin. Valid values are http-only, https-only, and
+                                match-viewer.
+                              type: string
+                            originReadTimeout:
+                              description: 'Custom read timeout, in seconds. Default:
+                                30.'
+                              type: number
+                            originSslProtocols:
+                              description: List of SSL/TLS protocols that you want
+                                CloudFront to use when communicating with your origin
+                                over HTTPS.
+                              items:
+                                type: string
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        domainName:
+                          description: DNS domain name of either the S3 bucket, or
+                            web site of your custom origin.
+                          type: string
+                        id:
+                          description: Identifier for the distribution.
+                          type: string
+                        originAccessControlId:
+                          description: CloudFront origin access control identifier
+                            to associate with the origin.
+                          type: string
+                        originPath:
+                          description: Optional element that causes CloudFront to
+                            request your content from a directory in your Amazon S3
+                            bucket or your custom origin.
+                          type: string
+                        originShield:
+                          description: CloudFront Origin Shield configuration information.
+                            See Origin Shield below.
+                          properties:
+                            enabled:
+                              description: Whether the distribution is enabled to
+                                accept end user requests for content.
+                              type: boolean
+                            originShieldRegion:
+                              description: AWS Region for Origin Shield. Required
+                                when enabled is true.
+                              type: string
+                          type: object
+                        responseCompletionTimeout:
+                          description: Number of seconds that CloudFront waits for
+                            a response after forwarding a request to the origin. Must
+                            be integer greater than or equal to the value of origin_read_timeout
+                            in Custom Origin Config. If omitted, no maximum value
+                            is enforced.
+                          type: number
+                        vpcOriginConfig:
+                          description: CloudFront VPC origin configuration. See VPC
+                            Origin Config below.
+                          properties:
+                            originKeepaliveTimeout:
+                              description: 'Custom keep-alive timeout, in seconds.
+                                Default: 5.'
+                              type: number
+                            originReadTimeout:
+                              description: 'Custom read timeout, in seconds. Default:
+                                30.'
+                              type: number
+                            vpcOriginId:
+                              description: ID of the VPC origin that you want CloudFront
+                                to route requests to.
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  originGroup:
+                    description: One or more origin_group for this distribution (multiples
+                      allowed). See Origin Group below.
+                    items:
+                      properties:
+                        failoverCriteria:
+                          description: Failover criteria for when to failover to the
+                            secondary origin. See Failover Criteria below.
+                          properties:
+                            statusCodes:
+                              description: List of HTTP status codes that trigger
+                                a failover to the secondary origin.
+                              items:
+                                type: number
+                              type: array
+                              x-kubernetes-list-type: set
+                          type: object
+                        id:
+                          description: Identifier for the distribution.
+                          type: string
+                        member:
+                          description: List of origins in this origin group. Must
+                            contain exactly 2 members. See Origin Group Member below.
+                          items:
+                            properties:
+                              originId:
+                                description: Unique identifier for the origin.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  restrictions:
+                    description: Restriction configuration for this distribution.
+                      See Restrictions below.
+                    properties:
+                      geoRestriction:
+                        description: Geographic restriction configuration. See Geo
+                          Restriction below.
+                        properties:
+                          items:
+                            description: List of ISO 3166-1-alpha-2 country codes
+                              for which you want CloudFront either to distribute your
+                              content (whitelist) or not distribute your content (blacklist).
+                              Required when restriction_type is whitelist or blacklist.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: set
+                          restrictionType:
+                            description: Method to restrict distribution of your content
+                              by country. Valid values are none, whitelist, and blacklist.
+                            type: string
+                        type: object
+                    type: object
+                  status:
+                    description: Current status of the distribution. Deployed if the
+                      distribution's information is fully propagated throughout the
+                      Amazon CloudFront system.
+                    type: string
+                  tags:
+                    additionalProperties:
+                      type: string
+                    description: Key-value map of resource tags.
+                    type: object
+                    x-kubernetes-map-type: granular
+                  tagsAll:
+                    additionalProperties:
+                      type: string
+                    description: Map of tags assigned to the resource, including those
+                      inherited from the provider default_tags configuration block.
+                    type: object
+                    x-kubernetes-map-type: granular
+                  tenantConfig:
+                    description: Tenant configuration that contains parameter definitions
+                      for multi-tenant distributions. See Tenant Config below.
+                    properties:
+                      parameterDefinition:
+                        description: One or more parameter definitions for the tenant
+                          configuration. See Parameter Definition below.
+                        items:
+                          properties:
+                            definition:
+                              description: Definition of the parameter schema. See
+                                Parameter Definition Schema below.
+                              properties:
+                                stringSchema:
+                                  description: String schema configuration. See String
+                                    Schema below.
+                                  properties:
+                                    comment:
+                                      description: Any comments you want to include
+                                        about the distribution.
+                                      type: string
+                                    defaultValue:
+                                      description: Default value for the parameter.
+                                      type: string
+                                    required:
+                                      description: Whether the parameter is required.
+                                      type: boolean
+                                  type: object
+                              type: object
+                            name:
+                              description: Name of the parameter.
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                  viewerCertificate:
+                    description: SSL configuration for this distribution. See Viewer
+                      Certificate below.
+                    properties:
+                      acmCertificateArn:
+                        description: ARN of the AWS Certificate Manager certificate
+                          that you wish to use with this distribution. Required when
+                          using a custom SSL certificate.
+                        type: string
+                      cloudfrontDefaultCertificate:
+                        description: Whether to use the CloudFront default certificate.
+                          Cannot be used with acm_certificate_arn.
+                        type: boolean
+                      minimumProtocolVersion:
+                        description: 'Minimum version of the SSL protocol that you
+                          want CloudFront to use for HTTPS connections. Default: TLSv1.'
+                        type: string
+                      sslSupportMethod:
+                        description: How you want CloudFront to serve HTTPS requests.
+                          Valid values are sni-only and vip. Required when acm_certificate_arn
+                          is specified.
+                        type: string
+                    type: object
+                  webAclId:
+                    description: Unique identifier that specifies the AWS WAF v2 web
+                      ACL to associate with this distribution.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

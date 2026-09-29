@@ -16,8 +16,26 @@ func (l *CachePolicyList) GetItems() []resource.Managed {
 	return items
 }
 
+// GetItems of this ConnectionGroupList.
+func (l *ConnectionGroupList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
 // GetItems of this DistributionList.
 func (l *DistributionList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
+// GetItems of this DistributionTenantList.
+func (l *DistributionTenantList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]
@@ -63,6 +81,15 @@ func (l *KeyGroupList) GetItems() []resource.Managed {
 
 // GetItems of this MonitoringSubscriptionList.
 func (l *MonitoringSubscriptionList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
+// GetItems of this MultitenantDistributionList.
+func (l *MultitenantDistributionList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]

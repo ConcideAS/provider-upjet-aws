@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: 2025 The Crossplane Authors <https://crossplane.io>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+
+apiVersion: cloudfront.aws.m.upbound.io/v1beta1
+kind: MultitenantDistribution
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudfront/v1beta1/multitenantdistribution
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+  namespace: upbound-system
+spec:
+  forProvider:
+    comment: Multi-tenant distribution for my application
+    defaultCacheBehavior:
+      allowedMethods:
+        cachedMethods:
+        - GET
+        - HEAD
+        items:
+        - DELETE
+        - GET
+        - HEAD
+        - OPTIONS
+        - PATCH
+        - POST
+        - PUT
+      cachePolicyIdSelector:
+        matchLabels:
+          testing.upbound.io/example-name: example
+      targetOriginId: example-origin
+      viewerProtocolPolicy: redirect-to-https
+    enabled: true
+    origin:
+    - customOriginConfig:
+        httpPort: 80
+        httpsPort: 443
+        originProtocolPolicy: https-only
+        originSslProtocols:
+        - TLSv1.2
+      domainName: example.com
+      id: example-origin
+    restrictions:
+      geoRestriction:
+        restrictionType: none
+    tags:
+      Environment: production
+    tenantConfig:
+      parameterDefinition:
+      - definition:
+          stringSchema:
+            comment: Origin domain parameter for tenants
+            required: true
+        name: origin_domain
+    viewerCertificate:
+      acmCertificateArnSelector:
+        matchLabels:
+          testing.upbound.io/example-name: example
+      sslSupportMethod: sni-only

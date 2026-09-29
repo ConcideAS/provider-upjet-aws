@@ -171,12 +171,15 @@ import (
 	stackset "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudformation/stackset"
 	stacksetinstance "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudformation/stacksetinstance"
 	cachepolicy "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/cachepolicy"
+	connectiongroup "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/connectiongroup"
 	distribution "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/distribution"
+	distributiontenant "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/distributiontenant"
 	fieldlevelencryptionconfig "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/fieldlevelencryptionconfig"
 	fieldlevelencryptionprofile "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/fieldlevelencryptionprofile"
 	functioncloudfront "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/function"
 	keygroup "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/keygroup"
 	monitoringsubscription "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/monitoringsubscription"
+	multitenantdistribution "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/multitenantdistribution"
 	originaccesscontrol "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/originaccesscontrol"
 	originaccessidentity "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/originaccessidentity"
 	originrequestpolicy "github.com/upbound/provider-aws/v2/internal/controller/cluster/cloudfront/originrequestpolicy"
@@ -1215,12 +1218,15 @@ func Setup_monolith(mgr ctrl.Manager, o controller.Options) error {
 		stackset.Setup,
 		stacksetinstance.Setup,
 		cachepolicy.Setup,
+		connectiongroup.Setup,
 		distribution.Setup,
+		distributiontenant.Setup,
 		fieldlevelencryptionconfig.Setup,
 		fieldlevelencryptionprofile.Setup,
 		functioncloudfront.Setup,
 		keygroup.Setup,
 		monitoringsubscription.Setup,
+		multitenantdistribution.Setup,
 		originaccesscontrol.Setup,
 		originaccessidentity.Setup,
 		originrequestpolicy.Setup,
@@ -2265,12 +2271,15 @@ func SetupGated_monolith(mgr ctrl.Manager, o controller.Options) error {
 		stackset.SetupGated,
 		stacksetinstance.SetupGated,
 		cachepolicy.SetupGated,
+		connectiongroup.SetupGated,
 		distribution.SetupGated,
+		distributiontenant.SetupGated,
 		fieldlevelencryptionconfig.SetupGated,
 		fieldlevelencryptionprofile.SetupGated,
 		functioncloudfront.SetupGated,
 		keygroup.SetupGated,
 		monitoringsubscription.SetupGated,
+		multitenantdistribution.SetupGated,
 		originaccesscontrol.SetupGated,
 		originaccessidentity.SetupGated,
 		originrequestpolicy.SetupGated,
@@ -3314,12 +3323,15 @@ func SetupWebhookWithManager_monolith(mgr ctrl.Manager) error {
 		stackset.SetupWebhookWithManager,
 		stacksetinstance.SetupWebhookWithManager,
 		cachepolicy.SetupWebhookWithManager,
+		connectiongroup.SetupWebhookWithManager,
 		distribution.SetupWebhookWithManager,
+		distributiontenant.SetupWebhookWithManager,
 		fieldlevelencryptionconfig.SetupWebhookWithManager,
 		fieldlevelencryptionprofile.SetupWebhookWithManager,
 		functioncloudfront.SetupWebhookWithManager,
 		keygroup.SetupWebhookWithManager,
 		monitoringsubscription.SetupWebhookWithManager,
+		multitenantdistribution.SetupWebhookWithManager,
 		originaccesscontrol.SetupWebhookWithManager,
 		originaccessidentity.SetupWebhookWithManager,
 		originrequestpolicy.SetupWebhookWithManager,

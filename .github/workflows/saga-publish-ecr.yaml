@@ -1,0 +1,172 @@
+name: Publish provider-aws-cloudfront to Saga ECR
+
+# Saga's fork carries CloudFront SaaS Manager support (ConnectionGroup,
+# DistributionTenant, MultitenantDistribution) that upstream has not merged:
+# crossplane-contrib/provider-upjet-aws#1953. This workflow builds that one
+# family subpackage and pushes it to the shared-account ECR that saga-gitops
+# pulls from.
+#
+# Auth is GitHub OIDC into a role scoped to this single repository and this
+# single ECR repository. It is provisioned by saga-aws `infra/ecr`
+# (`pushedBy: provider-upjet-aws`) — no long-lived keys, no org-wide token.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package tag, e.g. v2.8.1-cloudfront-saas.3 (must be semver)'
+        required: true
+      subpackage:
+        description: 'Service subpackage to build'
+        required: false
+        default: cloudfront
+  push:
+    branches:
+      - main
+    paths:
+      # Only the things that can change the package. Docs and CI edits do not
+      # warrant a 30-minute build.
+      - 'apis/**'
+      - 'config/**'
+      - 'internal/**'
+      - 'cmd/**'
+      - 'package/**'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/saga-publish-ecr.yaml'
+
+permissions:
+  contents: read
+  id-token: write # required for the OIDC assume-role
+
+env:
+  AWS_REGION: eu-central-1
+  ECR_REGISTRY: 163120011565.dkr.ecr.eu-central-1.amazonaws.com
+  ECR_REPOSITORY: saga/provider-aws-cloudfront
+  # The family this package declares a dependency on must match what the
+  # clusters actually run. Left at the upstream default it resolves to
+  # xpkg.upbound.io/upbound, which is not the family saga-gitops installs.
+  XPKG_REG_ORGS: xpkg.crossplane.io/crossplane-contrib
+  # Clusters are amd64 (verified on aws-eu-central-1-dev). Building both
+  # architectures roughly doubles the time and the disk for no consumer.
+  BUILD_PLATFORMS: linux_amd64
+
+jobs:
+  build-and-push:
+    # Upstream builds this on a 16 CPU / 64 GB runner. A stock hosted runner
+    # has ~14 GB of free disk, and the build needs far more, so the cleanup
+    # step below is load-bearing rather than hygiene — without it the build
+    # fails with "no space left on device" partway through compiling the
+    # terraform-provider-aws service packages.
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Reclaim runner disk
+        uses: jlumbroso/free-disk-space@3f13feab2962a87273d379ebc36ea159527e6cc9 # v1.3.2
+        with:
+          large-packages: false
+          swap-storage: false
+
+      - name: Report available disk
+        run: df -h / | tail -1
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: true
+
+      - name: Fetch history
+        run: git fetch --prune --unshallow || true
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: Install goimports
+        # Not vendored by the repo's tooling, and `make generate` panics
+        # without it: "cannot run goimports for apis folder".
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Resolve package version
+        id: ver
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            V="${{ github.event.inputs.version }}"
+          else
+            # A package's OCI tag must be semver, so derive one that sorts
+            # after the base release rather than using a bare SHA.
+            V="$(git describe --tags --abbrev=0 2>/dev/null || echo v2.8.1)-cloudfront-saas.$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Building $V"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::163120011565:role/saga-ecr-push-provider-upjet-aws
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+
+      - name: Build the subpackage
+        env:
+          SUBPACKAGE: ${{ github.event.inputs.subpackage || 'cloudfront' }}
+        run: |
+          set -o pipefail
+          export PATH="$(go env GOPATH)/bin:$PATH"
+          make "build-provider.${SUBPACKAGE}" \
+            VERSION="${{ steps.ver.outputs.version }}" \
+            BUILD_PLATFORMS="$BUILD_PLATFORMS" \
+            XPKG_REG_ORGS="$XPKG_REG_ORGS" 2>&1 | tail -40
+
+      - name: Verify the package was produced
+        id: pkg
+        run: |
+          # `make build` alone yields only a controller image; the package comes
+          # from the batch step. Fail loudly here rather than push nothing.
+          F=$(find _output/xpkg -name '*.xpkg' | head -1)
+          [ -n "$F" ] || { echo "::error::no .xpkg produced"; exit 1; }
+          ls -lh "$F"
+          echo "file=$F" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the declared family dependency
+        run: |
+          # Guards the defect that shipped in v2.8.1-cloudfront-saas.1: the
+          # package declared a dependency on xpkg.upbound.io/upbound, which is
+          # not the family these clusters run.
+          D=$(mktemp -d) && tar -xf "${{ steps.pkg.outputs.file }}" -C "$D"
+          for l in "$D"/*.tar.gz; do
+            if tar -tzf "$l" 2>/dev/null | grep -qx package.yaml; then
+              tar -xzOf "$l" package.yaml | grep -A2 '^  dependsOn:' || true
+              tar -xzOf "$l" package.yaml | grep -q 'xpkg.crossplane.io/crossplane-contrib/provider-family-aws' \
+                || { echo "::error::package depends on the wrong provider family"; exit 1; }
+              break
+            fi
+          done
+
+      - name: Push to ECR
+        run: |
+          ./.cache/tools/*/crossplane-cli-* xpkg push \
+            -f "${{ steps.pkg.outputs.file }}" \
+            "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Pushed"
+            echo ''
+            echo '```'
+            echo "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}"
+            echo '```'
+            echo ''
+            echo 'Installing it is **not** proof it works: a package can report'
+            echo '`Installed=True Healthy=True`, register every controller and'
+            echo 'still reconcile nothing. Verify on dev by applying a CachePolicy'
+            echo 'and requiring `Synced=True/ReconcileSuccess` before changing the'
+            echo 'saga-gitops pin.'
+          } >> "$GITHUB_STEP_SUMMARY"

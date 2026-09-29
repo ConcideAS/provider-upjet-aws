@@ -53,4 +53,37 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		r.AddSingletonListConversion("vpc_origin_endpoint_config", "vpcOriginEndpointConfig")
 		r.AddSingletonListConversion("vpc_origin_endpoint_config[*].origin_ssl_protocols", "vpcOriginEndpointConfig[*].originSslProtocols")
 	})
+	p.AddResourceConfigurator("aws_cloudfront_connection_group", func(r *config.Resource) {
+		r.UseAsync = true
+	})
+
+	p.AddResourceConfigurator("aws_cloudfront_distribution_tenant", func(r *config.Resource) {
+		r.UseAsync = true
+		r.AddSingletonListConversion("customizations", "customizations")
+		r.AddSingletonListConversion("customizations[*].certificate", "customizations[*].certificate")
+		r.AddSingletonListConversion("customizations[*].geo_restriction", "customizations[*].geoRestriction")
+		r.AddSingletonListConversion("customizations[*].web_acl", "customizations[*].webAcl")
+		r.AddSingletonListConversion("managed_certificate_request", "managedCertificateRequest")
+	})
+
+	p.AddResourceConfigurator("aws_cloudfront_multitenant_distribution", func(r *config.Resource) {
+		r.UseAsync = true
+		r.AddSingletonListConversion("cache_behavior[*].allowed_methods", "cacheBehavior[*].allowedMethods")
+		r.AddSingletonListConversion("cache_behavior[*].trusted_key_groups", "cacheBehavior[*].trustedKeyGroups")
+		r.AddSingletonListConversion("default_cache_behavior", "defaultCacheBehavior")
+		r.AddSingletonListConversion("default_cache_behavior[*].allowed_methods", "defaultCacheBehavior[*].allowedMethods")
+		r.AddSingletonListConversion("default_cache_behavior[*].trusted_key_groups", "defaultCacheBehavior[*].trustedKeyGroups")
+		r.AddSingletonListConversion("origin[*].custom_origin_config", "origin[*].customOriginConfig")
+		r.AddSingletonListConversion("origin[*].custom_origin_config[*].origin_mtls_config", "origin[*].customOriginConfig[*].originMtlsConfig")
+		r.AddSingletonListConversion("origin[*].origin_shield", "origin[*].originShield")
+		r.AddSingletonListConversion("origin[*].vpc_origin_config", "origin[*].vpcOriginConfig")
+		r.AddSingletonListConversion("origin_group[*].failover_criteria", "originGroup[*].failoverCriteria")
+		r.AddSingletonListConversion("restrictions", "restrictions")
+		r.AddSingletonListConversion("restrictions[*].geo_restriction", "restrictions[*].geoRestriction")
+		r.AddSingletonListConversion("tenant_config", "tenantConfig")
+		r.AddSingletonListConversion("tenant_config[*].parameter_definition[*].definition", "tenantConfig[*].parameterDefinition[*].definition")
+		r.AddSingletonListConversion("tenant_config[*].parameter_definition[*].definition[*].string_schema", "tenantConfig[*].parameterDefinition[*].definition[*].stringSchema")
+		r.AddSingletonListConversion("viewer_certificate", "viewerCertificate")
+	})
+
 }

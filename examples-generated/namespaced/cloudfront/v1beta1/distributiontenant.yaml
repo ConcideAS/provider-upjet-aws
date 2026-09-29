@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2025 The Crossplane Authors <https://crossplane.io>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+
+apiVersion: cloudfront.aws.m.upbound.io/v1beta1
+kind: DistributionTenant
+metadata:
+  annotations:
+    meta.upbound.io/example-id: cloudfront/v1beta1/distributiontenant
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+  namespace: upbound-system
+spec:
+  forProvider:
+    distributionIdSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+    domain:
+    - domain: tenant.example.com
+    enabled: true
+    name: example-tenant
+    tags:
+      Environment: production

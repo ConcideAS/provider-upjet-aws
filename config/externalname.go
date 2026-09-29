@@ -97,6 +97,12 @@ var TerraformPluginFrameworkExternalNameConfigs = map[string]config.ExternalName
 
 	// cloudfront
 	//
+	// Cloudfront Connection Group can be imported using the ID
+	"aws_cloudfront_connection_group": identifierFromProviderWithDefaultStub("cg_000000000000000000000000000"),
+	// Cloudfront Distribution Tenant can be imported using the ID
+	"aws_cloudfront_distribution_tenant": identifierFromProviderWithDefaultStub("dt_000000000000000000000000000"),
+	// Cloudfront Multi-tenant Distribution can be imported using the ID
+	"aws_cloudfront_multitenant_distribution": identifierFromProviderWithDefaultStub("E0000000000000"),
 	// Cloudfront VPC Origin can be imported using the ID
 	"aws_cloudfront_vpc_origin": identifierFromProviderWithDefaultStub("vo_stub000000000000000000"),
 
@@ -662,8 +668,8 @@ var TerraformPluginSDKExternalNameConfigs = map[string]config.ExternalName{
 	"aws_cloudfront_origin_access_control": config.IdentifierFromProvider,
 	// Cloudfront Origin Access Identities can be imported using the id
 	"aws_cloudfront_origin_access_identity": config.IdentifierFromProvider,
-	// No import documented, but https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_request_policy#name
-	"aws_cloudfront_origin_request_policy": config.NameAsIdentifier,
+	// Cloudfront Origin Request Policies can be imported using the id
+	"aws_cloudfront_origin_request_policy": config.IdentifierFromProvider,
 	// CloudFront Public Key can be imported using the id
 	"aws_cloudfront_public_key": config.IdentifierFromProvider,
 	// CloudFront real-time log configurations can be imported using the ARN,
