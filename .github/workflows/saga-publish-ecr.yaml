@@ -49,7 +49,15 @@ env:
   # The family this package declares a dependency on must match what the
   # clusters actually run. Left at the upstream default it resolves to
   # xpkg.upbound.io/upbound, which is not the family saga-gitops installs.
-  XPKG_REG_ORGS: xpkg.crossplane.io/crossplane-contrib
+  # Where the package is PUSHED. crossplane xpkg batch builds each package as
+  # $(XPKG_REG_ORGS)/<name>:$(VERSION), so this is the registry path that
+  # yields 163120011565.dkr.ecr.../saga/provider-aws-cloudfront.
+  XPKG_REG_ORGS: 163120011565.dkr.ecr.eu-central-1.amazonaws.com/saga
+  XPKG_REG_ORGS_NO_PROMOTE: 163120011565.dkr.ecr.eu-central-1.amazonaws.com/saga
+  # What the package DEPENDS ON. Separate from the push target: it feeds
+  # --template-var XpkgRegOrg, so it must name the family these clusters run,
+  # not the registry we publish to.
+  CONFIG_DEPENDENCY_REG_ORG: xpkg.crossplane.io/crossplane-contrib
   # Clusters are amd64 (verified on aws-eu-central-1-dev). Building both
   # architectures roughly doubles the time and the disk for no consumer.
   BUILD_PLATFORMS: linux_amd64
@@ -137,15 +145,27 @@ jobs:
             | docker login --username AWS --password-stdin "$ECR_REGISTRY"
 
       - name: Build the subpackage
+        # `build.all` then `publish`, which is what upstream's own release
+        # workflow runs (crossplane-contrib/provider-workflows
+        # publish-provider-family.yml). NOT `build-provider.<svc>`: that sets
+        # LOAD_PACKAGES=true, which runs the batch step with BUILD_ONLY=true and
+        # docker-loads the result for a local kind cluster. A package built that
+        # way and pushed by hand installs and reports Healthy but reconciles
+        # nothing - measured on aws-eu-central-1-dev against stock v2.8.1, and
+        # reproduced with an unmodified v2.8.1 tree, so it is the build path and
+        # not our resource config.
         env:
           SUBPACKAGE: ${{ github.event.inputs.subpackage || 'cloudfront' }}
         run: |
           set -o pipefail
           export PATH="$(go env GOPATH)/bin:$PATH"
-          make "build-provider.${SUBPACKAGE}" \
+          make SUBPACKAGES="$SUBPACKAGE" \
             VERSION="${{ steps.ver.outputs.version }}" \
             BUILD_PLATFORMS="$BUILD_PLATFORMS" \
-            XPKG_REG_ORGS="$XPKG_REG_ORGS" 2>&1 | tail -40
+            XPKG_REG_ORGS="$XPKG_REG_ORGS" \
+            XPKG_REG_ORGS_NO_PROMOTE="$XPKG_REG_ORGS_NO_PROMOTE" \
+            CONFIG_DEPENDENCY_REG_ORG="$CONFIG_DEPENDENCY_REG_ORG" \
+            BRANCH_NAME=main build.all 2>&1 | tail -40
 
       - name: Verify the package was produced
         id: pkg
@@ -172,11 +192,22 @@ jobs:
             fi
           done
 
-      - name: Push to ECR
+      - name: Publish to ECR
+        # `publish` runs the same batch step without BUILD_ONLY, so xpkg batch
+        # pushes the package itself. Pushing a BUILD_ONLY artifact by hand with
+        # `crossplane xpkg push` is what produced the inert packages.
+        env:
+          SUBPACKAGE: ${{ github.event.inputs.subpackage || 'cloudfront' }}
         run: |
-          ./.cache/tools/*/crossplane-cli-* xpkg push \
-            -f "${{ steps.pkg.outputs.file }}" \
-            "${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ steps.ver.outputs.version }}"
+          set -o pipefail
+          export PATH="$(go env GOPATH)/bin:$PATH"
+          make SUBPACKAGES="$SUBPACKAGE" \
+            VERSION="${{ steps.ver.outputs.version }}" \
+            BUILD_PLATFORMS="$BUILD_PLATFORMS" \
+            XPKG_REG_ORGS="$XPKG_REG_ORGS" \
+            XPKG_REG_ORGS_NO_PROMOTE="$XPKG_REG_ORGS_NO_PROMOTE" \
+            CONFIG_DEPENDENCY_REG_ORG="$CONFIG_DEPENDENCY_REG_ORG" \
+            BRANCH_NAME=main publish 2>&1 | tail -30
 
       - name: Summary
         run: |
