@@ -62,7 +62,7 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// async path the external name is written to an object that is thrown
 		// away and never reaches the API server.
 		//
-		// The resource is then unrecoverable: Crossplane records
+		// The resource is then stuck: Crossplane records
 		// external-create-succeeded, the external name stays empty, Observe
 		// resolves the stub id and finds nothing, and Crossplane refuses to
 		// create again rather than leak a second resource. Reproduced twice on
@@ -82,7 +82,7 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// async path the external name is written to an object that is thrown
 		// away and never reaches the API server.
 		//
-		// The resource is then unrecoverable: Crossplane records
+		// The resource is then stuck: Crossplane records
 		// external-create-succeeded, the external name stays empty, Observe
 		// resolves the stub id and finds nothing, and Crossplane refuses to
 		// create again rather than leak a second resource. Reproduced twice on
@@ -91,14 +91,20 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// These creates return as soon as CloudFront allocates an id - the
 		// propagation to Deployed is not waited on - so a synchronous Create
 		// does not hold a reconcile worker for long.
-		// connection_group_id has no *Ref of its own, so saga-gitops wrapped this
-		// resource in a provider-kubernetes Object and patched the id in from the
-		// ConnectionGroup's status. That wrapper is what loses the external name:
-		// two controllers then write the same object, and the annotation write
-		// loses the race with the Object's re-apply -
-		//   Cannot initialize managed resource ... the object has been modified;
-		//   please apply your changes to the latest version and try again
-		// A native reference removes the wrapper, and with it the conflict.
+		// connection_group_id has no *Ref of its own, so saga-gitops wraps this
+		// resource in a provider-kubernetes Object and patches the id in from the
+		// ConnectionGroup's status. A native reference removes that wrapper, the
+		// "PENDING" placeholder it needs, and a second writer on the object.
+		//
+		// It does NOT explain the lost external name. An earlier version of this
+		// comment said it did, on the strength of a
+		//   Cannot initialize managed resource ... the object has been modified
+		// conflict at create time. managedFields disproves that: the Object
+		// applied once and never again, the later uncontested write still set no
+		// external name, and on VPCOrigin the provider writes external-name in
+		// the same update as the create annotations. On the multi-tenant
+		// distribution it writes only the create annotations, so the external
+		// name is never attempted rather than lost to a race.
 		r.References["connection_group_id"] = config.Reference{
 			TerraformName: "aws_cloudfront_connection_group",
 		}
@@ -118,7 +124,7 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// async path the external name is written to an object that is thrown
 		// away and never reaches the API server.
 		//
-		// The resource is then unrecoverable: Crossplane records
+		// The resource is then stuck: Crossplane records
 		// external-create-succeeded, the external name stays empty, Observe
 		// resolves the stub id and finds nothing, and Crossplane refuses to
 		// create again rather than leak a second resource. Reproduced twice on
@@ -127,9 +133,11 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// These creates return as soon as CloudFront allocates an id - the
 		// propagation to Deployed is not waited on - so a synchronous Create
 		// does not hold a reconcile worker for long.
-		// Same reason as connection_group_id on the tenant: without this the
-		// vpc origin id can only be patched in by an Object wrapper, and that
-		// wrapper is what clobbers the external-name annotation.
+		// Same reason as connection_group_id on the tenant: without this the vpc
+		// origin id can only be patched in by an Object wrapper. Note this alone
+		// does not free the distribution from its wrapper - that Object also
+		// patches origin[0].domainName from a Gateway, which is not a managed
+		// resource and so cannot be referenced at all.
 		r.References["origin.vpc_origin_config.vpc_origin_id"] = config.Reference{
 			TerraformName: "aws_cloudfront_vpc_origin",
 		}
