@@ -149,6 +149,22 @@ jobs:
           aws ecr get-login-password --region "$AWS_REGION" \
             | docker login --username AWS --password-stdin "$ECR_REGISTRY"
 
+      - name: Regenerate the provider from config
+        # config/**/cloudfront/config.go is INPUT to code generation, not runtime
+        # configuration. The connector choice and every *Ref field are baked into
+        # the committed generated code (internal/controller/**/zz_controller.go,
+        # apis/**/zz_*_types.go), so a config edit that is not regenerated ships a
+        # package that behaves exactly like the old one. That cost a full
+        # build/publish/rollout cycle on 2026-09-30 before the running provider's
+        # debug log showed it still taking the path the config had removed.
+        #
+        # Generation needs the Terraform provider schema and the upstream docs,
+        # which `generate.init` pulls.
+        run: |
+          set -o pipefail
+          export PATH="$(go env GOPATH)/bin:$PATH"
+          make generate 2>&1 | tail -40
+
       - name: Build the subpackage
         # `build.all` then `publish`, which is what upstream's own release
         # workflow runs (crossplane-contrib/provider-workflows

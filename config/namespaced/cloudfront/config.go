@@ -91,6 +91,17 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// These creates return as soon as CloudFront allocates an id - the
 		// propagation to Deployed is not waited on - so a synchronous Create
 		// does not hold a reconcile worker for long.
+		// connection_group_id has no *Ref of its own, so saga-gitops wrapped this
+		// resource in a provider-kubernetes Object and patched the id in from the
+		// ConnectionGroup's status. That wrapper is what loses the external name:
+		// two controllers then write the same object, and the annotation write
+		// loses the race with the Object's re-apply -
+		//   Cannot initialize managed resource ... the object has been modified;
+		//   please apply your changes to the latest version and try again
+		// A native reference removes the wrapper, and with it the conflict.
+		r.References["connection_group_id"] = config.Reference{
+			TerraformName: "aws_cloudfront_connection_group",
+		}
 		r.AddSingletonListConversion("customizations", "customizations")
 		r.AddSingletonListConversion("customizations[*].certificate", "customizations[*].certificate")
 		r.AddSingletonListConversion("customizations[*].geo_restriction", "customizations[*].geoRestriction")
@@ -116,6 +127,12 @@ func Configure(p *config.Provider) { //nolint:gocyclo
 		// These creates return as soon as CloudFront allocates an id - the
 		// propagation to Deployed is not waited on - so a synchronous Create
 		// does not hold a reconcile worker for long.
+		// Same reason as connection_group_id on the tenant: without this the
+		// vpc origin id can only be patched in by an Object wrapper, and that
+		// wrapper is what clobbers the external-name annotation.
+		r.References["origin.vpc_origin_config.vpc_origin_id"] = config.Reference{
+			TerraformName: "aws_cloudfront_vpc_origin",
+		}
 		r.AddSingletonListConversion("cache_behavior[*].allowed_methods", "cacheBehavior[*].allowedMethods")
 		r.AddSingletonListConversion("cache_behavior[*].trusted_key_groups", "cacheBehavior[*].trustedKeyGroups")
 		r.AddSingletonListConversion("default_cache_behavior", "defaultCacheBehavior")
